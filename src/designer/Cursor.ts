@@ -37,14 +37,23 @@ export default class Cursor {
   updateCursor = (type: string, e: PointerEvent) => {
     let col = Math.floor(e.x / this.width)
     let row = Math.floor(e.y / this.height)
+    let centerX = this.width * col + this.width / 2
+    let centerY = this.height * row + this.height / 2
     this.row = row
     this.col = col
 
-    this._cursor.position.x = this.width * col + this.width / 2
-    this._cursor.position.y = this.height * row + this.height / 2
+    this._cursor.position.x = centerX
+    this._cursor.position.y = centerY
     this.canvas.dispatchEvent(
       new CustomEvent<CursorDetail>(type, {
-        detail: { col, row, x: e.x, y: e.y },
+        detail: {
+          col,
+          row,
+          x: centerX,
+          y: centerY,
+          clientX: e.x,
+          clientY: e.y,
+        },
       })
     )
   }
@@ -65,4 +74,6 @@ export type CursorDetail = {
   col: number
   x: number
   y: number
+  clientX: number
+  clientY: number
 }

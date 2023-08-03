@@ -24,6 +24,18 @@ const switchMode = (mode: Mode) => {
   <div class="toolbar">
     <span
       class="toolbar-item"
+      @click="switchMode(Mode.Selector)"
+      :class="{ active: state.mode == Mode.Selector }"
+      >Selector</span
+    >
+    <span
+      class="toolbar-item"
+      @click="switchMode(Mode.Box)"
+      :class="{ active: state.mode == Mode.Box }"
+      >Rectangle</span
+    >
+    <span
+      class="toolbar-item"
       @click="switchMode(Mode.Line)"
       :class="{ active: state.mode == Mode.Line }"
       >Line</span
@@ -34,13 +46,7 @@ const switchMode = (mode: Mode) => {
       :class="{ active: state.mode == Mode.Text }"
       >Text</span
     >
-    <span
-      class="toolbar-item"
-      @click="switchMode(Mode.Selector)"
-      :class="{ active: state.mode == Mode.Selector }"
-      >Selector</span
-    >
-    <span class="toolbar-item">Hide</span>
+    <span class="toolbar-item">Clear</span>
   </div>
   <div ref="canvasRef" class="cvs"></div>
 </template>
@@ -62,9 +68,7 @@ const switchMode = (mode: Mode) => {
   border: solid 1px black;
   cursor: pointer;
   padding: 3px 10px;
-}
-
-.cvs {
+  margin: 7px;
 }
 
 .active {
