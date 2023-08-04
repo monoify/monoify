@@ -3,6 +3,7 @@ import { Rectangle } from 'two.js/src/shapes/rectangle'
 import Selector from './Selector'
 import Cursor from './Cursor'
 import Box from './Box'
+import Line from './Line'
 
 class Canvas {
   readonly ctx: Two
@@ -17,6 +18,8 @@ class Canvas {
 
   readonly box: Box
 
+  readonly line: Line
+
   readonly addEventListener: Function
 
   readonly dispatchEvent: Function
@@ -27,7 +30,7 @@ class Canvas {
     this.initGrids(parent, 1, '#dedede') // draw grid background
 
     this.ctx = new Two({
-      // type: Two.Types.webgl,
+      type: Two.Types.webgl,
       fullscreen: true,
       autostart: true,
       fitted: true,
@@ -40,6 +43,7 @@ class Canvas {
     this.cursor = new Cursor(this)
     this.selector = new Selector(this)
     this.box = new Box(this)
+    this.line = new Line(this)
 
     // pointer event handle delegation
     const { updateCursor } = this.cursor

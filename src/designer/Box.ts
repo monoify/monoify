@@ -46,7 +46,7 @@ export default class Box {
     if (this.canvas.mode != Mode.Box) {
       return
     }
-
+    this.cursor.show = true
     this.isDrawing = false
   }
 }
