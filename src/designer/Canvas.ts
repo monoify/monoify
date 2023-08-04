@@ -2,6 +2,7 @@ import Two from 'two.js'
 import { Rectangle } from 'two.js/src/shapes/rectangle'
 import Cursor from './Cursor'
 import { RectTool, Selector, LineTool } from './tools'
+import { KeyboardDetail } from './types'
 
 class Canvas {
   readonly ctx: Two
@@ -46,6 +47,7 @@ class Canvas {
     // pointer event handle delegation
     const { updateCursor } = this.cursor
 
+    // TODO move these codes into Cursor
     el.addEventListener('pointerup', (e: PointerEvent) =>
       updateCursor('cursorup', e)
     )
@@ -55,6 +57,15 @@ class Canvas {
     el.addEventListener('pointerdown', (e: PointerEvent) =>
       updateCursor('cursordown', e)
     )
+
+    window.addEventListener('keydown', (e: KeyboardEvent) => {
+      console.log(e)
+      let event = new CustomEvent<KeyboardDetail>('canvaskeydown', {
+        detail: { code: e.code },
+      })
+
+      el.dispatchEvent(event)
+    })
   }
 
   private initGrids = (
@@ -87,7 +98,7 @@ class Canvas {
   }
 
   // param bottom right position
-  updateRegion = (region: Region, x: number, y: number, ) => {
+  updateRegion = (region: Region, x: number, y: number) => {
     if (region) {
       const { position, topleft } = region
       const offsetX = x - topleft.x

@@ -1,5 +1,7 @@
 import Canvas, { Mode } from '../Canvas'
 import { CursorDetail } from '../Cursor'
+import { Line as LN } from 'two.js/src/shapes/line'
+import { onKey } from '../util'
 
 export default class LineTool {
   private canvas
@@ -8,40 +10,56 @@ export default class LineTool {
 
   private isDrawing: boolean = false
 
-  private line?: any
+  private line?: LN
 
   constructor(canvas: Canvas) {
     this.canvas = canvas
 
     this.canvas.addEventListener('cursordown', this.onCursorDown)
-    this.canvas.addEventListener('cursorup', this.onCursorUp)
     this.canvas.addEventListener('cursormove', this.onCursorMove)
+    this.canvas.addEventListener(
+      'canvaskeydown',
+      onKey({
+        'Enter': this.confirm,
+        'Space': this.confirm,
+        'Escape': this.concel,
+      })
+    )
   }
 
   onCursorDown = (e: CustomEvent<CursorDetail>) => {
     if (this.canvas.mode != Mode.Line) {
       return
     }
-
     this.isDrawing = true
 
-    const { x, y } = e.detail
-
-    this.line = this.canvas.ctx.makeLine(x, y, x, y)
-    this.line.dashes = [5, 2]
-    this.line.stroke = '#999'
-    this.line.linewidth = 1
+    if (this.line) {
+      this.confirm()
+    } else {
+      // new line
+      const { x, y } = e.detail
+      this.line = this.canvas.ctx.makeLine(x, y, x, y)
+      this.line.dashes = [5, 2]
+      this.line.stroke = '#999'
+      this.line.linewidth = 1
+    }
   }
 
-  onCursorUp = () => {
-    if (this.canvas.mode != Mode.Line) {
-      return
+  confirm = () => {
+    if (this.line) {
+      this.line.stroke = '#000'
+      this.line.dashes = [0, 0]
+      this.line = undefined
+      this.isDrawing = false
     }
+  }
 
-    this.line.stroke = '#000'
-    this.line.dashes = [0, 0]
-    this.isDrawing = false
-    this.line = null
+  concel = () => {
+    if (this.line) {
+      this.canvas.ctx.remove(this.line)
+      this.line = undefined
+      this.isDrawing = false
+    }
   }
 
   validate = (): boolean => {
