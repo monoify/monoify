@@ -3,6 +3,7 @@ import { Rectangle } from 'two.js/src/shapes/rectangle'
 import Cursor from './Cursor'
 import { RectTool, Selector, LineTool } from './tools'
 import { KeyboardDetail } from './types'
+import { Group } from 'two.js/src/group'
 
 class Canvas {
   readonly ctx: Two
@@ -25,11 +26,13 @@ class Canvas {
 
   mode: Mode = Mode.Selector
 
+  readonly el: HTMLElement
+
   constructor(parent: HTMLElement) {
-    this.initGrids(parent, 1, '#dedede') // draw grid background
+    this.el = parent
 
     this.ctx = new Two({
-      type: Two.Types.webgl,
+      // type: Two.Types.webgl,
       fullscreen: true,
       autostart: true,
       fitted: true,
@@ -44,19 +47,7 @@ class Canvas {
     this.box = new RectTool(this)
     this.line = new LineTool(this)
 
-    // pointer event handle delegation
-    const { updateCursor } = this.cursor
 
-    // TODO move these codes into Cursor
-    el.addEventListener('pointerup', (e: PointerEvent) =>
-      updateCursor('cursorup', e)
-    )
-    el.addEventListener('pointermove', (e: PointerEvent) =>
-      updateCursor('cursormove', e)
-    )
-    el.addEventListener('pointerdown', (e: PointerEvent) =>
-      updateCursor('cursordown', e)
-    )
 
     window.addEventListener('keydown', (e: KeyboardEvent) => {
       console.log(e)
@@ -68,16 +59,6 @@ class Canvas {
     })
   }
 
-  private initGrids = (
-    container: HTMLElement,
-    lineWidth: number = 1,
-    lineColor: string
-  ) => {
-    const style = container.style
-    style.backgroundImage = `linear-gradient(to right, ${lineColor} ${lineWidth}px, transparent ${lineWidth}px),
-          linear-gradient(to bottom, ${lineColor} ${lineWidth}px, transparent ${lineWidth}px)`
-    style.backgroundSize = `${this.cellWidth}px ${this.cellHeight}px`
-  }
 
   createRegion = (
     x: number,
