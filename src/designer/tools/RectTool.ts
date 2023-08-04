@@ -1,8 +1,8 @@
 import { Rectangle } from 'two.js/src/shapes/rectangle'
-import Canvas, { Mode, Region } from './Canvas'
-import Cursor from './Cursor'
+import Canvas, { Mode, Region } from '../Canvas'
+import Cursor from '../Cursor'
 
-export default class Box {
+export default class BoxTool {
   private canvas: Canvas
 
   private cursor: Cursor

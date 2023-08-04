@@ -1,7 +1,7 @@
-import Canvas, { Mode } from './Canvas'
-import { CursorDetail } from './Cursor'
+import Canvas, { Mode } from '../Canvas'
+import { CursorDetail } from '../Cursor'
 
-export default class Line {
+export default class LineTool {
   private canvas
 
   public style: Style = Style.Plain
@@ -27,7 +27,7 @@ export default class Line {
 
     const { x, y } = e.detail
 
-    this.line = this.canvas.ctx.makeLine(x, y,x,y)
+    this.line = this.canvas.ctx.makeLine(x, y, x, y)
     this.line.dashes = [5, 2]
     this.line.stroke = '#999'
     this.line.linewidth = 1
@@ -37,9 +37,19 @@ export default class Line {
     if (this.canvas.mode != Mode.Line) {
       return
     }
+
     this.line.stroke = '#000'
-    this.line.dashes = [0,0]
+    this.line.dashes = [0, 0]
     this.isDrawing = false
+    this.line = null
+  }
+
+  validate = (): boolean => {
+    if (!this.line) {
+      return false
+    }
+
+    return false
   }
 
   onCursorMove = (e: CustomEvent<CursorDetail>) => {

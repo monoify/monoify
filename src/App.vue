@@ -4,6 +4,14 @@ import { onMounted, reactive, ref } from 'vue'
 import Canvas, { Mode } from '@/designer/Canvas'
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
+const gitInfo = {
+  commit: __GIT_COMMIT_HASH__,
+  lastMod: __GIT_COMMIT_DATE__,
+  message: __GIT_COMMIT_MESG__,
+  branch: __GIT_COMMIT_BRANCH__,
+  link:
+    'https://github.com/eatgrass/text-diagram/commit/' + __GIT_COMMIT_HASH__,
+}
 
 let canvas: Canvas
 let state = reactive<any>({
@@ -49,6 +57,18 @@ const switchMode = (mode: Mode) => {
     <span class="toolbar-item">Clear</span>
   </div>
   <div ref="canvasRef" class="cvs"></div>
+  <div class="release">
+    <span class="git-info-title">
+      This tool is currently under development
+    </span>
+    <a :href="gitInfo.link" target="_blank"
+      ><span class="git-info-text"
+        >commit: {{ gitInfo.commit }} ({{ gitInfo.branch }})</span
+      ></a
+    >
+    <span class="git-info-text">last modfied: {{ gitInfo.lastMod }}</span>
+    <span class="git-info-text">{{ gitInfo.message }}</span>
+  </div>
 </template>
 
 <style scoped>
@@ -74,5 +94,27 @@ const switchMode = (mode: Mode) => {
 .active {
   background-color: green;
   font-weight: 700;
+}
+
+.release {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+  z-index: 101;
+  padding: 15px;
+  background: #fff;
+}
+.release .git-info-title {
+  font-weight: 700;
+  font-size: 16px;
+  color: red;
+  margin: 10px 0;
+}
+
+.release .git-info-text {
+  font-size: 13px;
+  margin: 3px 0;
 }
 </style>

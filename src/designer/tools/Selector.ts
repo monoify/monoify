@@ -1,5 +1,5 @@
-import Cursor, { CursorDetail } from './Cursor'
-import Canvas, { Mode, Region } from './Canvas'
+import Cursor, { CursorDetail } from '../Cursor'
+import Canvas, { Mode, Region } from '../Canvas'
 
 class Selector {
   private canvas: Canvas

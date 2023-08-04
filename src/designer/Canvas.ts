@@ -1,9 +1,7 @@
 import Two from 'two.js'
 import { Rectangle } from 'two.js/src/shapes/rectangle'
-import Selector from './Selector'
 import Cursor from './Cursor'
-import Box from './Box'
-import Line from './Line'
+import { RectTool, Selector, LineTool } from './tools'
 
 class Canvas {
   readonly ctx: Two
@@ -16,9 +14,9 @@ class Canvas {
 
   readonly selector: Selector
 
-  readonly box: Box
+  readonly box: RectTool
 
-  readonly line: Line
+  readonly line: LineTool
 
   readonly addEventListener: Function
 
@@ -42,8 +40,8 @@ class Canvas {
 
     this.cursor = new Cursor(this)
     this.selector = new Selector(this)
-    this.box = new Box(this)
-    this.line = new Line(this)
+    this.box = new RectTool(this)
+    this.line = new LineTool(this)
 
     // pointer event handle delegation
     const { updateCursor } = this.cursor
