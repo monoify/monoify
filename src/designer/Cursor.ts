@@ -204,6 +204,7 @@ export default class Cursor {
   }
 }
 
+// FIXME use CellPosition
 export type CursorDetail = {
   row: number
   col: number

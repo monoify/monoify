@@ -2,7 +2,7 @@ import { Rectangle } from 'two.js/src/shapes/rectangle'
 import Canvas, { Mode, Region } from '../Canvas'
 import Cursor from '../Cursor'
 
-export default class BoxTool {
+export default class RectTool {
   private canvas: Canvas
 
   private cursor: Cursor
@@ -29,7 +29,7 @@ export default class BoxTool {
     this.box = this.canvas.createRegion(x, y, 1, 1)
     this.box.stroke = '#000'
     this.box.noFill()
-    this.box.linewidth = 2
+    this.box.linewidth = 1
   }
 
   onCursorMove = (e: CustomEvent) => {
@@ -48,5 +48,28 @@ export default class BoxTool {
     }
     this.cursor.show = true
     this.isDrawing = false
+
+
+    if(this.box) {
+
+      this.box.translation
+
+    }
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

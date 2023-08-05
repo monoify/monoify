@@ -3,7 +3,7 @@ import { Rectangle } from 'two.js/src/shapes/rectangle'
 import Cursor from './Cursor'
 import { RectTool, Selector, LineTool } from './tools'
 import { KeyboardDetail } from './types'
-import { Group } from 'two.js/src/group'
+import CellManager from './CellManager'
 
 class Canvas {
   readonly ctx: Two
@@ -28,6 +28,8 @@ class Canvas {
 
   readonly el: HTMLElement
 
+  cellMgr: CellManager
+
   constructor(parent: HTMLElement) {
     this.el = parent
 
@@ -38,6 +40,8 @@ class Canvas {
       fitted: true,
     }).appendTo(parent)
 
+    this.cellMgr = new CellManager(this)
+
     const { domElement: el } = this.ctx.renderer
     this.addEventListener = el.addEventListener.bind(el)
     this.dispatchEvent = el.dispatchEvent.bind(el)
@@ -46,8 +50,6 @@ class Canvas {
     this.selector = new Selector(this)
     this.box = new RectTool(this)
     this.line = new LineTool(this)
-
-
 
     window.addEventListener('keydown', (e: KeyboardEvent) => {
       console.log(e)
@@ -58,7 +60,6 @@ class Canvas {
       el.dispatchEvent(event)
     })
   }
-
 
   createRegion = (
     x: number,

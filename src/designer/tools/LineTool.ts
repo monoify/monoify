@@ -1,5 +1,7 @@
 import Canvas, { Mode } from '../Canvas'
 import { CursorDetail } from '../Cursor'
+import { Line } from '../shapes'
+import { CellPosition } from '../types'
 import { onKey } from '../util'
 
 export default class LineTool {
@@ -19,11 +21,35 @@ export default class LineTool {
     this.canvas.addEventListener(
       'canvaskeydown',
       onKey({
-        'Enter': this.confirm,
-        'Space': this.confirm,
-        'Escape': this.concel,
+        Enter: this.confirm,
+        Space: this.confirm,
+        Escape: this.concel,
       })
     )
+  }
+
+  static isValid(line: Line): boolean {
+    if (!line) {
+      return false
+    }
+    let { scx: bx, scy: by } = line.begin
+    let { scx: ex, scy: ey } = line.end
+    return bx != ex || by != ey
+  }
+
+  makeLine = (start: CursorDetail) => {
+    let p: CellPosition = {
+      row: start.row,
+      col: start.col,
+      scx: start.x,
+      scy: start.y,
+    }
+    this.line = new Line(p, p)
+    this.line.dashes = [5, 2]
+    this.line.stroke = '#999'
+    this.line.linewidth = 1
+
+    this.canvas.ctx.scene.add(this.line)
   }
 
   onCursorDown = (e: CustomEvent<CursorDetail>) => {
@@ -33,14 +59,13 @@ export default class LineTool {
     this.isDrawing = true
 
     if (this.line) {
-      this.confirm()
+      if (LineTool.isValid(this.line)) {
+        this.confirm()
+      } else {
+        this.concel()
+      }
     } else {
-      // new line
-      const { x, y } = e.detail
-      this.line = this.canvas.ctx.makeLine(x, y, x, y)
-      this.line.dashes = [5, 2]
-      this.line.stroke = '#999'
-      this.line.linewidth = 1
+      this.makeLine(e.detail)
     }
   }
 
@@ -48,8 +73,10 @@ export default class LineTool {
     if (this.line) {
       this.line.stroke = '#000'
       this.line.dashes = [0, 0]
-      this.line = undefined
       this.isDrawing = false
+
+      this.canvas.cellMgr.addLine(this.line)
+      this.line = undefined
     }
   }
 
@@ -75,8 +102,18 @@ export default class LineTool {
     }
 
     if (this.line && this.isDrawing) {
-      this.line.left.x = e.detail.x
-      this.line.left.y = e.detail.y
+      let { row, col, x: scx, y: scy } = e.detail
+
+      let p: CellPosition = {
+        row,
+        col,
+        scx,
+        scy,
+      }
+      // this.line.right.x = scx
+      // this.line.right.y = scy
+
+      this.line.end = p
     }
   }
 }
