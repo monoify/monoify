@@ -186,8 +186,8 @@ export default class Cursor {
           row,
           x: clientCenterX,
           y: clientCenterY,
-          clientX: x,
-          clientY: y,
+          clientX: cx,
+          clientY: cy,
         },
       })
     )
