@@ -1,6 +1,5 @@
 import Canvas, { Mode } from '../Canvas'
 import { CursorDetail } from '../Cursor'
-import { Line as LN } from 'two.js/src/shapes/line'
 import { onKey } from '../util'
 
 export default class LineTool {
@@ -10,7 +9,7 @@ export default class LineTool {
 
   private isDrawing: boolean = false
 
-  private line?: LN
+  private line?: any // FIXME: wait for upstream upgrade
 
   constructor(canvas: Canvas) {
     this.canvas = canvas
