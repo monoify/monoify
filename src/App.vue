@@ -59,8 +59,8 @@ const dumpText = () => {
       :class="{ active: state.mode == Mode.Text }"
       >Text</span
     >
-    <span class="toolbar-item" @click="dumpText">Export</span>
     <span class="toolbar-item">Clear</span>
+    <span class="toolbar-item" @click="dumpText">Export</span>
   </div>
   <div ref="canvasRef" class="cvs"></div>
   <div class="release">
@@ -86,7 +86,7 @@ const dumpText = () => {
   background-color: #fff;
   box-shadow: 2px 2px 9px 0px #212020d6;
   padding: 20px;
-  width: 450px;
+  width: 550px;
   z-index: 100;
 }
 

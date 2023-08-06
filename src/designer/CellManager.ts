@@ -5,17 +5,17 @@ import { CellBorder, Charset } from './types'
 
 const DEFAULT_CHARSET: Charset = {
   [CellBorder.Empty]: ' ',
-  [CellBorder.Horizontal]: '−',
-  [CellBorder.Vertical]: '│',
-  [CellBorder.DownRight]: '┌',
-  [CellBorder.DownLeft]: '┐',
-  [CellBorder.UpRight]: '└',
-  [CellBorder.UpLeft]: '┘',
-  [CellBorder.VerticalRight]: '├',
-  [CellBorder.VerticalLeft]: '┤',
-  [CellBorder.HorizontalDown]: '┬',
-  [CellBorder.HorizontalUp]: '┴',
-  [CellBorder.VerticalHorizontal]: '┼',
+  [CellBorder.Horizontal]: '-',
+  [CellBorder.Vertical]: '|',
+  [CellBorder.DownRight]: '+',
+  [CellBorder.DownLeft]: '+',
+  [CellBorder.UpRight]: '+',
+  [CellBorder.UpLeft]: '+',
+  [CellBorder.VerticalRight]: '+',
+  [CellBorder.VerticalLeft]: '+',
+  [CellBorder.HorizontalDown]: '+',
+  [CellBorder.HorizontalUp]: '+',
+  [CellBorder.VerticalHorizontal]: '+',
 }
 
 export class Cell {
@@ -32,14 +32,17 @@ export class Cell {
     this.state = Direction.None
   }
 
+  update(type: CellBorder.Vertical | CellBorder.Horizontal, anchor: Direction) {
+    this.setBorder(type, anchor)
+    if (anchor != Direction.None && this.state == Direction.None) {
+      this.state
+    }
+  }
+
   setBorder(
     type: CellBorder.Vertical | CellBorder.Horizontal,
     anchor: Direction
   ) {
-    if (anchor != Direction.None && this.state == Direction.None) {
-      this.state = anchor
-    }
-
     if (this.border == CellBorder.Empty || this.border == type) {
       this.border = type
       return
@@ -58,44 +61,54 @@ export class Cell {
         this.border == CellBorder.UpRight
       ) {
         this.border = CellBorder.VerticalRight
+        return
       }
 
       if (this.border == CellBorder.Horizontal) {
         if (this.state == Direction.None) {
           if (anchor == Direction.None) {
             this.border = CellBorder.VerticalHorizontal
+            return
           } else if (anchor == Direction.VERTICAL_UP) {
             this.border = CellBorder.HorizontalUp
+            return
           } else if (anchor == Direction.VERTICAL_DOWN) {
             this.border = CellBorder.HorizontalDown
+            return
           }
         }
 
         if (this.state == Direction.HORIZONTAL_LEFT) {
           if (anchor == Direction.None) {
             this.border = CellBorder.VerticalLeft
+            return
           }
 
           if (anchor == Direction.VERTICAL_UP) {
             this.border = CellBorder.UpLeft
+            return
           }
 
           if (anchor == Direction.VERTICAL_DOWN) {
             this.border = CellBorder.DownLeft
+            return
           }
         }
 
         if (this.state == Direction.HORIZONTAL_RIGHT) {
           if (anchor == Direction.None) {
             this.border = CellBorder.VerticalRight
+            return
           }
 
           if (anchor == Direction.VERTICAL_UP) {
             this.border = CellBorder.UpRight
+            return
           }
 
           if (anchor == Direction.VERTICAL_DOWN) {
             this.border = CellBorder.DownRight
+            return
           }
         }
       }
@@ -107,6 +120,7 @@ export class Cell {
         this.border == CellBorder.DownRight
       ) {
         this.border = CellBorder.HorizontalDown
+        return
       }
 
       if (
@@ -114,48 +128,58 @@ export class Cell {
         this.border == CellBorder.UpRight
       ) {
         this.border = CellBorder.HorizontalUp
+        return
       }
 
       if (this.border == CellBorder.Vertical) {
         if (this.state == Direction.None) {
           if (anchor == Direction.None) {
             this.border = CellBorder.VerticalHorizontal
+            return
           }
 
           if (anchor == Direction.HORIZONTAL_LEFT) {
             this.border = CellBorder.VerticalLeft
+            return
           }
 
           if (anchor == Direction.HORIZONTAL_RIGHT) {
             this.border = CellBorder.VerticalRight
+            return
           }
         }
 
         if (this.state == Direction.VERTICAL_UP) {
           if (anchor == Direction.None) {
             this.border = CellBorder.HorizontalUp
+            return
           }
 
           if (anchor == Direction.HORIZONTAL_LEFT) {
             this.border = CellBorder.UpLeft
+            return
           }
 
           if (anchor == Direction.HORIZONTAL_RIGHT) {
             this.border = CellBorder.UpRight
+            return
           }
         }
 
         if (this.state == Direction.VERTICAL_DOWN) {
           if (anchor == Direction.None) {
             this.border = CellBorder.HorizontalDown
+            return
           }
 
           if (anchor == Direction.HORIZONTAL_LEFT) {
             this.border = CellBorder.DownLeft
+            return
           }
 
           if (anchor == Direction.HORIZONTAL_RIGHT) {
             this.border = CellBorder.DownRight
+            return
           }
         }
       }
@@ -236,36 +260,58 @@ export default class CellManager {
 
   static fillToLeft(map: Cell[][], row: number, bc: number, ec: number) {
     for (let i = bc; i >= ec; i--) {
-      map[row][i].setBorder(
-        CellBorder.Horizontal,
-        i == bc ? Direction.HORIZONTAL_LEFT : Direction.None
-      )
+      let d = Direction.None
+
+      if (i == bc) {
+        d = Direction.HORIZONTAL_LEFT
+      }
+      if (i == ec) {
+        d = Direction.HORIZONTAL_RIGHT
+      }
+
+      map[row][i].update(CellBorder.Horizontal, d)
     }
   }
   static fillToRight(map: Cell[][], row: number, bc: number, ec: number) {
     for (let i = bc; i <= ec; i++) {
-      map[row][i].setBorder(
-        CellBorder.Horizontal,
-        i == bc ? Direction.HORIZONTAL_RIGHT : Direction.None
-      )
+      let d = Direction.None
+
+      if (i == bc) {
+        d = Direction.HORIZONTAL_RIGHT
+      }
+      if (i == ec) {
+        d = Direction.HORIZONTAL_LEFT
+      }
+      map[row][i].update(CellBorder.Horizontal, d)
     }
   }
 
   static fillToUp(map: Cell[][], col: number, br: number, er: number) {
     for (let i = br; i >= er; i--) {
-      map[i][col].setBorder(
-        CellBorder.Vertical,
-        i == br ? Direction.VERTICAL_UP : Direction.None
-      )
+      let d = Direction.None
+
+      if (i == br) {
+        d = Direction.VERTICAL_UP
+      }
+      if (i == er) {
+        d = Direction.VERTICAL_DOWN
+      }
+
+      map[i][col].update(CellBorder.Vertical, d)
     }
   }
 
   static fillToDown(map: Cell[][], col: number, br: number, er: number) {
     for (let i = br; i <= er; i++) {
-      map[i][col].setBorder(
-        CellBorder.Vertical,
-        i == br ? Direction.VERTICAL_DOWN : Direction.None
-      )
+      let d = Direction.None
+
+      if (i == br) {
+        d = Direction.VERTICAL_DOWN
+      }
+      if (i == er) {
+        d = Direction.VERTICAL_UP
+      }
+      map[i][col].update(CellBorder.Vertical, d)
     }
   }
 }

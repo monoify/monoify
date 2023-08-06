@@ -34,7 +34,8 @@ export default class LineTool {
     }
     let { scx: bx, scy: by } = line.begin
     let { scx: ex, scy: ey } = line.end
-    return bx != ex || by != ey
+
+    return (bx != ex && by == ey) || (by != ey && bx == ex)
   }
 
   makeLine = (start: CursorDetail) => {
@@ -76,7 +77,6 @@ export default class LineTool {
       this.isDrawing = false
 
       this.canvas.cellMgr.addLine(this.line)
-      this.canvas.cellMgr.dumpText()
       this.line = undefined
     }
   }
