@@ -1,6 +1,7 @@
-import { Rectangle } from 'two.js/src/shapes/rectangle'
-import Canvas, { Mode, Region } from '../Canvas'
-import Cursor from '../Cursor'
+import Canvas, { Mode } from '../Canvas'
+import Cursor, { CursorDetail } from '../Cursor'
+import { Rect } from '../shapes'
+import { CellPosition } from '../types'
 
 export default class RectTool {
   private canvas: Canvas
@@ -9,7 +10,7 @@ export default class RectTool {
 
   private isDrawing: boolean = false
 
-  private box?: Region
+  private rect?: Rect
 
   constructor(canvas: Canvas) {
     this.canvas = canvas
@@ -19,26 +20,69 @@ export default class RectTool {
     this.canvas.addEventListener('cursormove', this.onCursorMove)
   }
 
-  onCursorDown = (e: CustomEvent) => {
-    if (this.canvas.mode != Mode.Box) {
-      return
-    }
-    let { x, y } = e.detail
-    this.cursor.show = false
-    this.isDrawing = true
-    this.box = this.canvas.createRegion(x, y, 1, 1)
-    this.box.stroke = '#000'
-    this.box.noFill()
-    this.box.linewidth = 1
+  makeRect(start: CellPosition): Rect {
+    let rect = new Rect(start, start)
+    rect.dashes = [5, 2]
+    rect.stroke = '#999'
+    rect.linewidth = 1
+    rect.noFill()
+    this.canvas.ctx.scene.add(rect)
+    return rect
   }
 
-  onCursorMove = (e: CustomEvent) => {
+  static isValid(rect: Rect) {
+    if (!rect) {
+      return false
+    }
+
+    let { scx: bx, scy: by } = rect.bottomright
+    let { scx: ex, scy: ey } = rect.topleft
+
+    return bx != ex && by != ey
+  }
+
+  concel() {
+    if (this.rect) {
+      this.canvas.ctx.remove(this.rect)
+      this.rect = undefined
+      this.isDrawing = false
+    }
+  }
+
+  confirm() {
+    if (this.rect) {
+      this.rect.stroke = '#000'
+      this.rect.dashes = [0, 0]
+      this.isDrawing = false
+      this.canvas.cellMgr.addLines(this.rect.lines)
+      this.rect = undefined
+    }
+  }
+
+  onCursorDown = (e: CustomEvent<CursorDetail>) => {
     if (this.canvas.mode != Mode.Box) {
       return
     }
 
-    if (this.isDrawing && this.box) {
-      this.canvas.updateRegion(this.box, e.detail.x, e.detail.y)
+    if (e.detail.type == 'mouse' && e.detail.button != 0) {
+      return
+    }
+
+    let { x, y, col, row } = e.detail
+
+    this.cursor.show = false
+    this.isDrawing = true
+    this.rect = this.makeRect({ col, row, scx: x, scy: y })
+  }
+
+  onCursorMove = (e: CustomEvent<CursorDetail>) => {
+    if (this.canvas.mode != Mode.Box) {
+      return
+    }
+
+    if (this.isDrawing && this.rect) {
+      let { x, y, col, row } = e.detail
+      this.rect.bottomright = { col, row, scx: x, scy: y }
     }
   }
 
@@ -46,30 +90,14 @@ export default class RectTool {
     if (this.canvas.mode != Mode.Box) {
       return
     }
-    this.cursor.show = true
     this.isDrawing = false
-
-
-    if(this.box) {
-
-      this.box.translation
-
+    if (this.rect) {
+      if (RectTool.isValid(this.rect)) {
+        this.confirm()
+      } else {
+        this.concel()
+      }
     }
+    this.cursor.show = true
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

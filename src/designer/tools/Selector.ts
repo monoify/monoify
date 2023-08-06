@@ -45,8 +45,6 @@ class Selector {
       return
     }
 
-    console.log(e)
-
     if (e.detail.type == 'mouse' && e.detail.button != 0) {
       return
     }

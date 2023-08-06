@@ -196,8 +196,8 @@ export default class CellManager {
     this.canvas = canvas
   }
 
-  addLine(line: Line) {
-    this.store.push(line)
+  addLines(line: Line | Line[]) {
+    this.store = this.store.concat(line)
   }
 
   dumpText(charset: Charset = DEFAULT_CHARSET): string {

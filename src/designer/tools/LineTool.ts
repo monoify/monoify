@@ -57,7 +57,11 @@ export default class LineTool {
     if (this.canvas.mode != Mode.Line) {
       return
     }
-    this.isDrawing = true
+
+    if (e.detail.type == 'mouse' && e.detail.button != 0) {
+      return
+    }
+
 
     if (this.line) {
       if (LineTool.isValid(this.line)) {
@@ -66,6 +70,7 @@ export default class LineTool {
         this.concel()
       }
     } else {
+      this.isDrawing = true
       this.makeLine(e.detail)
     }
   }
@@ -76,7 +81,7 @@ export default class LineTool {
       this.line.dashes = [0, 0]
       this.isDrawing = false
 
-      this.canvas.cellMgr.addLine(this.line)
+      this.canvas.cellMgr.addLines(this.line)
       this.line = undefined
     }
   }
