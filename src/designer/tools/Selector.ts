@@ -40,8 +40,14 @@ class Selector {
     this.isSelecting = false
     this.clearSelectedRegion()
   }
-  onCursorDown = (e: CustomEvent) => {
+  onCursorDown = (e: CustomEvent<CursorDetail>) => {
     if (this.canvas.mode != Mode.Selector) {
+      return
+    }
+
+    console.log(e)
+
+    if (e.detail.type == 'mouse' && e.detail.button != 0) {
       return
     }
 

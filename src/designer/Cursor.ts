@@ -170,7 +170,8 @@ export default class Cursor {
   }
 
   updateCursor = (type: string, e: PointerEvent) => {
-    let { x, y } = e
+
+    let { x, y,button, pointerType: pointer} = e
 
     let { x: cx, y: cy } = this.zui.clientToSurface(x, y)
 
@@ -184,6 +185,8 @@ export default class Cursor {
     this.canvas.dispatchEvent(
       new CustomEvent<CursorDetail>(type, {
         detail: {
+          type: pointer,
+          button,
           col,
           row,
           x: clientCenterX,
@@ -208,6 +211,8 @@ export default class Cursor {
 
 // FIXME use CellPosition
 export type CursorDetail = {
+  type: string,
+  button: number,
   row: number
   col: number
   x: number
