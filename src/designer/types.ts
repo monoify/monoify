@@ -8,3 +8,20 @@ export type CellPosition = {
   scx: number
   scy: number
 }
+
+export enum CellBorder {
+  Empty, // ' ',
+  Horizontal, // '−',
+  Vertical, // '│',
+  DownRight, // '┌',
+  DownLeft, // '┐',
+  UpRight, // '└',
+  UpLeft, // '┘',
+  VerticalRight, // '├',
+  VerticalLeft, // '┤',
+  HorizontalDown, // '┬',
+  HorizontalUp, // '┴',
+  VerticalHorizontal, //'┼',
+}
+
+export type Charset = { [key in CellBorder]: string }

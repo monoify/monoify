@@ -26,6 +26,11 @@ const switchMode = (mode: Mode) => {
   state.mode = mode
   canvas.mode = mode
 }
+
+const dumpText = () => {
+  console.log(canvas.cellMgr.dumpText())
+  alert('open the DevTools and copy the text')
+}
 </script>
 
 <template>
@@ -54,6 +59,7 @@ const switchMode = (mode: Mode) => {
       :class="{ active: state.mode == Mode.Text }"
       >Text</span
     >
+    <span class="toolbar-item" @click="dumpText">Export</span>
     <span class="toolbar-item">Clear</span>
   </div>
   <div ref="canvasRef" class="cvs"></div>

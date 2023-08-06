@@ -42,7 +42,7 @@ export default class Line extends Path {
       return Direction.HORIZONTAL_LEFT
     }
 
-    return Direction.UNKNOWN
+    return Direction.None
   }
 
   get begin() {
@@ -71,6 +71,6 @@ export enum Direction {
   VERTICAL_DOWN = 1,
   HORIZONTAL_RIGHT = 2,
   HORIZONTAL_LEFT = 3,
-  UNKNOWN = 4
+  None = 4
 
 }

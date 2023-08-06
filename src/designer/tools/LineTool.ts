@@ -76,6 +76,7 @@ export default class LineTool {
       this.isDrawing = false
 
       this.canvas.cellMgr.addLine(this.line)
+      this.canvas.cellMgr.dumpText()
       this.line = undefined
     }
   }
