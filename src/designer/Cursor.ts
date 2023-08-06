@@ -61,6 +61,8 @@ export default class Cursor {
       this.updateCursor('cursordown', e)
     )
 
+    this.canvas.ctx.bind("resize", this.initGrids)
+
     // style cursor
     this._cursor = this.canvas.ctx.makeRectangle(
       this.width / 2,
