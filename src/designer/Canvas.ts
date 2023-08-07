@@ -1,6 +1,6 @@
 import Two from 'two.js'
 import { Rectangle } from 'two.js/src/shapes/rectangle'
-import Cursor from './Cursor'
+import Coordinate from './Coordinate'
 import { RectTool, Selector, LineTool } from './tools'
 import { KeyboardDetail } from './types'
 import CellManager from './CellManager'
@@ -12,7 +12,7 @@ class Canvas {
 
   cellWidth: number = 20
 
-  readonly cursor: Cursor
+  readonly coordinate: Coordinate
 
   readonly selector: Selector
 
@@ -24,7 +24,7 @@ class Canvas {
 
   readonly dispatchEvent: Function
 
-  mode: Mode = Mode.Selector
+  _mode: Mode = Mode.Selector
 
   readonly el: HTMLElement
 
@@ -46,7 +46,7 @@ class Canvas {
     this.addEventListener = el.addEventListener.bind(el)
     this.dispatchEvent = el.dispatchEvent.bind(el)
 
-    this.cursor = new Cursor(this)
+    this.coordinate = new Coordinate(this)
     this.selector = new Selector(this)
     this.box = new RectTool(this)
     this.line = new LineTool(this)
@@ -59,6 +59,15 @@ class Canvas {
 
       el.dispatchEvent(event)
     })
+  }
+
+  set mode(mode:Mode) {
+    this._mode = mode
+    this.ctx.dispatchEvent("modechange",this.mode, mode)
+  }
+
+  get mode() {
+    return this._mode
   }
 
   createRegion = (

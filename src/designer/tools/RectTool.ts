@@ -1,12 +1,13 @@
 import Canvas, { Mode } from '../Canvas'
-import Cursor, { CursorDetail } from '../Cursor'
+import Coordinate, { CursorDetail } from '../Coordinate'
 import { Rect } from '../shapes'
 import { CellPosition } from '../types'
 
 export default class RectTool {
+
   private canvas: Canvas
 
-  private cursor: Cursor
+  private coordinate: Coordinate
 
   private isDrawing: boolean = false
 
@@ -14,7 +15,7 @@ export default class RectTool {
 
   constructor(canvas: Canvas) {
     this.canvas = canvas
-    this.cursor = canvas.cursor
+    this.coordinate = canvas.coordinate
     this.canvas.addEventListener('cursordown', this.onCursorDown)
     this.canvas.addEventListener('cursorup', this.onCursorUp)
     this.canvas.addEventListener('cursormove', this.onCursorMove)
@@ -70,7 +71,7 @@ export default class RectTool {
 
     let { x, y, col, row } = e.detail
 
-    this.cursor.show = false
+    this.coordinate.show = false
     this.isDrawing = true
     this.rect = this.makeRect({ col, row, scx: x, scy: y })
   }
@@ -98,6 +99,6 @@ export default class RectTool {
         this.concel()
       }
     }
-    this.cursor.show = true
+    this.coordinate.show = true
   }
 }

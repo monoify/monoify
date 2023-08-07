@@ -1,4 +1,4 @@
-import Cursor, { CursorDetail } from '../Cursor'
+import Coordinate, { CursorDetail } from '../Coordinate'
 import Canvas, { Mode, Region } from '../Canvas'
 
 class Selector {
@@ -6,13 +6,13 @@ class Selector {
 
   private isSelecting: boolean = false
 
-  private cursor: Cursor
+  private coordinate: Coordinate
 
   private selectedRegion?: Region
 
   constructor(canvas: Canvas) {
     this.canvas = canvas
-    this.cursor = canvas.cursor
+    this.coordinate = canvas.coordinate
     this.canvas.addEventListener('cursorup', this.onCursorUp)
     this.canvas.addEventListener('cursordown', this.onCursorDown)
     this.canvas.addEventListener('cursormove', this.onCursorMove)
@@ -36,7 +36,7 @@ class Selector {
       return
     }
 
-    this.cursor.show = true
+    this.coordinate.show = true
     this.isSelecting = false
     this.clearSelectedRegion()
   }
@@ -49,7 +49,7 @@ class Selector {
       return
     }
 
-    this.cursor.show = false
+    this.coordinate.show = false
     this.isSelecting = true
     this.createSelectedRegion(e.detail.clientX, e.detail.clientY)
   }

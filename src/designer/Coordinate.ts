@@ -1,23 +1,17 @@
 import { Rectangle } from 'two.js/src/shapes/rectangle'
 import Canvas from './Canvas'
+import Cursor from './shapes/Cursor'
 import Two from 'two.js'
 import { ZUI } from 'two.js/extras/jsm/zui'
 import { Vector } from 'two.js/src/vector'
 import { Group } from 'two.js/src/group'
 import { CellPosition } from './types'
+import { cursorTo } from 'readline'
 
-export default class Cursor {
+export default class Coordinate {
   private canvas: Canvas
 
-  private row: number = 0
-
-  private col: number = 0
-
-  private width: number
-
-  private height: number
-
-  private _cursor: Rectangle
+  private _cursor: Cursor
 
   private bg: string
 
@@ -38,8 +32,6 @@ export default class Cursor {
 
   constructor(canvas: Canvas, fill: string = '#aaa') {
     this.canvas = canvas
-    this.width = canvas.cellWidth
-    this.height = canvas.cellHeight
 
     this._cellInnerWidth = canvas.cellWidth
     this._cellInnerHeight = canvas.cellHeight
@@ -61,19 +53,37 @@ export default class Cursor {
       this.updateCursor('cursordown', e)
     )
 
-    this.canvas.ctx.bind("resize", this.initGrids)
+    this.canvas.ctx.bind('resize', this.initGrids)
 
     // style cursor
-    this._cursor = this.canvas.ctx.makeRectangle(
-      this.width / 2,
-      this.height / 2,
-      this.width,
-      this.height
+    const cursorCell: CellPosition = this.getCellByPostion(0, 0)
+    this._cursor = Coordinate.makeCursor(
+      cursorCell,
+      this._cellInnerWidth,
+      this._cellInnerHeight,
+      fill
     )
-    this._cursor.noStroke()
-    this._cursor.fill = fill
+    this.canvas.ctx.scene.add(this._cursor)
     this.bg = fill
     this.canvas.ctx.renderer.domElement.style.cursor = 'crosshair'
+  }
+
+  getCellPosition(row: number, col: number): CellPosition {
+    return {
+      row,
+      col,
+      scx: (row + 0.5) * this.cellWidth,
+      scy: (col + 0.5) * this.cellHeight,
+    }
+  }
+
+  static makeCursor(
+    cell: CellPosition,
+    width: number,
+    height: number,
+    fill: string
+  ): Cursor {
+    return new Cursor(cell, width, height, fill)
   }
 
   get cellWidth() {
@@ -170,17 +180,18 @@ export default class Cursor {
   }
 
   updateCursor = (type: string, e: PointerEvent) => {
-
-    let { x, y,button, pointerType: pointer} = e
+    let { x, y, button, pointerType: pointer } = e
 
     let { x: cx, y: cy } = this.zui.clientToSurface(x, y)
 
-    let col = Math.floor(cx / (this.width + 1))
-    let row = Math.floor(cy / (this.height + 1))
-    let clientCenterX = (this.width + 1) * col + (this.width + 1) / 2
-    let clientCenterY = (this.height + 1) * row + (this.height + 1) / 2
-    this._cursor.position.x = clientCenterX
-    this._cursor.position.y = clientCenterY
+    let col = Math.floor(cx / this.cellWidth)
+    let row = Math.floor(cy / this.cellHeight)
+    let scx = (col + 0.5) * this.cellWidth
+    let scy = (row + 0.5) * this.cellHeight
+
+    let cell: CellPosition = { col, row, scx, scy }
+
+    this._cursor.cell = cell
 
     this.canvas.dispatchEvent(
       new CustomEvent<CursorDetail>(type, {
@@ -189,8 +200,9 @@ export default class Cursor {
           button,
           col,
           row,
-          x: clientCenterX,
-          y: clientCenterY,
+          // FIXME x , y, scx, scy, ccx, ccy
+          x: scx,
+          y: scy,
           clientX: cx,
           clientY: cy,
         },
@@ -211,8 +223,8 @@ export default class Cursor {
 
 // FIXME use CellPosition
 export type CursorDetail = {
-  type: string,
-  button: number,
+  type: string
+  button: number
   row: number
   col: number
   x: number
