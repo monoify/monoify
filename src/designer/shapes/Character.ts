@@ -10,6 +10,10 @@ export default class Character extends Group {
 
   private _bg: Rectangle
 
+  static getId(row: number, col: number) {
+    return `ch_${row}_${col}`
+  }
+
   constructor(cell: CellPosition, char: string, width: number, height: number) {
     super()
     this._text = new Text(char, cell.scx, cell.scy)
@@ -20,6 +24,7 @@ export default class Character extends Group {
     this._bg.linewidth = 1
     this._bg.stroke = '#dedede'
     this.add(this._bg, this._text)
+    this.id = Character.getId(cell.row, cell.col)
   }
 
   get cell() {

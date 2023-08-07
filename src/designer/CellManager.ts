@@ -229,6 +229,13 @@ export default class CellManager {
     this.chars.push(char)
   }
 
+  remove(obj: Character) {
+    let index = this.chars.findIndex(ch=> ch.id == obj.id)
+    if(index >=0) {
+      this.chars.splice(index,1)
+    }
+  }
+
   dumpText(charset: Charset = DEFAULT_CHARSET): string {
 
     let map: Cell[][] = []

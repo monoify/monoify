@@ -6,6 +6,13 @@ import { CellPosition, KeyboardDetail } from '../types'
 import Character from '../shapes/Character'
 
 export default class TextTool {
+  static Move: any = {
+    ArrowLeft: [0, -1],
+    ArrowRight: [0, 1],
+    ArrowUp: [-1, 0],
+    ArrowDown: [1, 0],
+  }
+
   private canvas: Canvas
 
   private inputCursor?: Cursor
@@ -18,7 +25,7 @@ export default class TextTool {
 
   // printable chars
   private chars =
-    '!"#$&\'()+,./0123456789:;<=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~'
+    ' !"#$&\'()+,./0123456789:;<=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~'
 
   constructor(canvas: Canvas) {
     this.canvas = canvas
@@ -28,23 +35,76 @@ export default class TextTool {
   }
 
   onKeyDown = (e: CustomEvent<KeyboardDetail>) => {
-    let { key } = e.detail
-    if (this.chars.indexOf(key) >= 0) {
-      this.addChar(key)
+    if (this.canvas.mode == Mode.Text) {
+      let { key } = e.detail
+      console.log(key)
+      if (this.chars.indexOf(key) >= 0) {
+        this.addChar(key)
+      } else if (key == 'Backspace') {
+        this.removeChar(true)
+      } else if (key == 'Delete') {
+        this.removeChar(false)
+      } else if (key.indexOf('Arrow') >= 0) {
+        this.moveCursor(TextTool.Move[key])
+      }
     }
   }
 
-  addChar = (char: string) => {
+  moveCursor = (move: number[] = [0, 0]) => {
+    if (this.inputCursor) {
+      const { row, col } = this.inputCursor.cell
+      this.inputCursor.cell = this.canvas.coordinate.getCellPosition(
+        row + move[0],
+        col + move[1]
+      )
+    }
+  }
+
+  removeChar = (prev: boolean) => {
+    if (this.inputCursor) {
+      const { row, col } = this.inputCursor.cell
+      if (prev) {
+        this.inputCursor.cell = this.canvas.coordinate.getCellPosition(
+          row,
+          col - 1
+        )
+      }
+      this.removeAt(row, prev ? col - 1 : col)
+    }
+  }
+
+  removeAt(row: number, col: number) {
+    let char = this.canvas.chars.getById(`ch_${row}_${col}`)
+    if (char) {
+      this.canvas.cellMgr.remove(char as Character)
+      char.remove()
+    }
+  }
+
+  addChar = (value: string) => {
     if (this.inputCursor) {
       const { col, row } = this.inputCursor?.cell
       const { cellWidth, cellHeight } = this.canvas.coordinate
-      let ch = new Character(this.inputCursor.cell, char, cellWidth, cellHeight)
-      this.canvas.chars.add(ch)
-      this.inputCursor.cell = this.canvas.coordinate.getCellPosition(
-        row,
-        col + 1
-      )
-      this.canvas.cellMgr.addCharacter(ch)
+      let char: Character = this.canvas.chars.getById(
+        Character.getId(row, col)
+      ) as Character
+
+      if (char) {
+        char.value = value
+      } else {
+        let ch = new Character(
+          this.inputCursor.cell,
+          value,
+          cellWidth,
+          cellHeight
+        )
+        this.canvas.chars.add(ch)
+        this.inputCursor.cell = this.canvas.coordinate.getCellPosition(
+          row,
+          col + 1
+        )
+        this.canvas.cellMgr.addCharacter(ch)
+      }
     }
   }
 
