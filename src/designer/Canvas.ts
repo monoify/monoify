@@ -37,6 +37,8 @@ class Canvas {
 
   readonly grids: Group
 
+  readonly cursor: Group
+
   cellMgr: CellManager
 
   constructor(parent: HTMLElement) {
@@ -52,6 +54,7 @@ class Canvas {
     this.grids = this.ctx.makeGroup()
     this.borders = this.ctx.makeGroup()
     this.chars = this.ctx.makeGroup()
+    this.cursor = this.ctx.makeGroup()
 
     this.cellMgr = new CellManager(this)
 

@@ -272,7 +272,7 @@ export default class CellManager {
         map,
         row - this.minRow,
         col - this.minCol,
-        this.chars[i].char
+        this.chars[i].value
       )
     }
 

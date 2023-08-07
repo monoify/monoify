@@ -1,26 +1,44 @@
-import { CellPosition } from "../types";
-import { Text } from "two.js/src/text";
+import { Rectangle } from 'two.js/src/shapes/rectangle'
+import { CellPosition } from '../types'
+import { Text } from 'two.js/src/text'
+import { Group } from 'two.js/src/group'
 
-export default class Character extends Text {
-
+export default class Character extends Group {
   _cell: CellPosition
 
-  char: string
+  private _text: Text
 
-  constructor(cell: CellPosition, char: string) {
-    super(char,cell.scx,cell.scy)
+  private _bg: Rectangle
+
+  constructor(cell: CellPosition, char: string, width: number, height: number) {
+    super()
+    this._text = new Text(char, cell.scx, cell.scy)
     this._cell = cell
-    this.char = char
+    this._bg = new Rectangle(cell.scx, cell.scy, width, height)
+    this._text = new Text(char, cell.scx, cell.scy)
+    this._bg.fill = '#fff'
+    this._bg.linewidth = 1
+    this._bg.stroke = '#dedede'
+    this.add(this._bg, this._text)
   }
 
   get cell() {
     return this._cell
   }
 
-  set cell(cell:CellPosition) {
+  set cell(cell: CellPosition) {
     this._cell = cell
-    this.position.x = cell.scx
-    this.position.y = cell.scy
+    this._text.position.x = cell.scx
+    this._text.position.y = cell.scy
+    this._bg.position.x = cell.scx
+    this._bg.position.y = cell.scy
   }
 
+  set value(char: string) {
+    this._text.value = char
+  }
+
+  get value() {
+    return this._text.value
+  }
 }

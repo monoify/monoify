@@ -3,7 +3,6 @@ import Cursor from './shapes/Cursor'
 import Two from 'two.js'
 import { ZUI } from 'two.js/extras/jsm/zui'
 import { Vector } from 'two.js/src/vector'
-import { Group } from 'two.js/src/group'
 import { CellPosition } from './types'
 
 export default class Coordinate {
@@ -11,9 +10,11 @@ export default class Coordinate {
 
   private _pointer: Cursor
 
-  private bg: string
-
   private zui: ZUI
+
+  readonly pointerBg = 'rgba(0,0,0,0.1)'
+
+  readonly gridColor = '#dedede'
 
   private mv: Vector = new Two.Vector()
 
@@ -26,7 +27,7 @@ export default class Coordinate {
   // surface measure
   cellInnerHeight: number
 
-  constructor(canvas: Canvas, fill: string = '#EFECEC') {
+  constructor(canvas: Canvas) {
     this.canvas = canvas
 
     this.cellInnerWidth = canvas.cellWidth
@@ -56,10 +57,9 @@ export default class Coordinate {
       cursorCell,
       this.cellInnerWidth,
       this.cellInnerHeight,
-      fill
+      this.pointerBg
     )
     this.canvas.grids.add(this._pointer)
-    this.bg = fill
     this.canvas.ctx.renderer.domElement.style.cursor = 'crosshair'
   }
 
@@ -121,7 +121,7 @@ export default class Coordinate {
           sfw,
           oc.scy + this.cellHeight / 2
         )
-        top.stroke = '#dedede'
+        top.stroke = this.gridColor
         top.linewidth = this.cellBorder
         this.canvas.grids.children.push(top)
       }
@@ -133,7 +133,7 @@ export default class Coordinate {
         ri * this.cellHeight + oc.scy + this.cellHeight / 2
       )
 
-      mh.stroke = '#dedede'
+      mh.stroke = this.gridColor
       mh.linewidth = this.cellBorder * 2
       this.canvas.grids.children.push(mh)
 
@@ -149,7 +149,7 @@ export default class Coordinate {
           oc.scx + this.cellWidth / 2,
           sfh
         )
-        left.stroke = '#dedede'
+        left.stroke = this.gridColor
         left.linewidth = this.cellBorder
         this.canvas.grids.children.push(left)
       }
@@ -161,7 +161,7 @@ export default class Coordinate {
         sfh
       )
 
-      mv.stroke = '#dedede'
+      mv.stroke = this.gridColor
       mv.linewidth = this.cellBorder * 2
       this.canvas.grids.children.push(mv)
       vp += this.cellWidth
@@ -207,7 +207,7 @@ export default class Coordinate {
 
   set showPointer(display: boolean) {
     if (this._pointer) {
-      this._pointer.fill = display ? this.bg : 'transparent'
+      this._pointer.fill = display ? this.pointerBg : 'transparent'
     }
   }
 }

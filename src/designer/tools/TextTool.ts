@@ -14,6 +14,8 @@ export default class TextTool {
 
   private _blinkTimer?: ReturnType<typeof setInterval>
 
+  private cursorBg: string[] = ['rgba(0,0,0,0.3)', 'rgba(0,0,0,0.1)']
+
   // printable chars
   private chars =
     '!"#$&\'()+,./0123456789:;<=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~'
@@ -35,9 +37,13 @@ export default class TextTool {
   addChar = (char: string) => {
     if (this.inputCursor) {
       const { col, row } = this.inputCursor?.cell
-      let ch = new Character(this.inputCursor.cell, char)
+      const { cellWidth, cellHeight } = this.canvas.coordinate
+      let ch = new Character(this.inputCursor.cell, char, cellWidth, cellHeight)
       this.canvas.chars.add(ch)
-      this.inputCursor.cell = this.canvas.coordinate.getCellPosition(row, col + 1)
+      this.inputCursor.cell = this.canvas.coordinate.getCellPosition(
+        row,
+        col + 1
+      )
       this.canvas.cellMgr.addCharacter(ch)
     }
   }
@@ -55,21 +61,23 @@ export default class TextTool {
         cell,
         this.canvas.coordinate.cellInnerWidth,
         this.canvas.coordinate.cellInnerHeight,
-        '#aaa'
+        this.cursorBg[0]
       )
       this.inputCursor.noStroke()
 
-      this.canvas.grids.add(this.inputCursor)
+      this.canvas.cursor.add(this.inputCursor)
       this._blinkTimer = setInterval(this.blink, 750)
     }
-    this.inputCursor.fill = '#aaa'
+    this.inputCursor.fill = this.cursorBg[0]
     this.inputCursor.cell = cell
   }
 
   blink = () => {
     if (this.inputCursor) {
       this.inputCursor.fill =
-        this.inputCursor.fill == '#EFECEC' ? '#aaa' : '#EFECEC'
+        this.inputCursor.fill == this.cursorBg[0]
+          ? this.cursorBg[1]
+          : this.cursorBg[0]
     }
   }
 
