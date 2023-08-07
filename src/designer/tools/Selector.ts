@@ -36,7 +36,7 @@ class Selector {
       return
     }
 
-    this.coordinate.show = true
+    this.coordinate.showPointer = true
     this.isSelecting = false
     this.clearSelectedRegion()
   }
@@ -49,7 +49,7 @@ class Selector {
       return
     }
 
-    this.coordinate.show = false
+    this.coordinate.showPointer = false
     this.isSelecting = true
     this.createSelectedRegion(e.detail.clientX, e.detail.clientY)
   }

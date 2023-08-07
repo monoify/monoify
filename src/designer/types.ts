@@ -1,4 +1,5 @@
 export type KeyboardDetail = {
+  key: string
   code: string
 }
 

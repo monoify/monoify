@@ -9,8 +9,6 @@ const branchName = execSync('git rev-parse --abbrev-ref HEAD').toString().trimEn
 const commitHash = execSync('git rev-parse --short HEAD').toString().trimEnd();
 const commitMesg = execSync('git show -s --format=%s').toString().trimEnd();
 
-console.log()
-
 // https://vitejs.dev/config/
 export default defineConfig({
   define: {

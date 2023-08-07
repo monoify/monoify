@@ -1,9 +1,10 @@
 import Two from 'two.js'
 import { Rectangle } from 'two.js/src/shapes/rectangle'
 import Coordinate from './Coordinate'
-import { RectTool, Selector, LineTool } from './tools'
+import { RectTool, Selector, LineTool, TextTool } from './tools'
 import { KeyboardDetail } from './types'
 import CellManager from './CellManager'
+import { Group } from 'two.js/src/group'
 
 class Canvas {
   readonly ctx: Two
@@ -20,6 +21,8 @@ class Canvas {
 
   readonly line: LineTool
 
+  readonly text: TextTool
+
   readonly addEventListener: Function
 
   readonly dispatchEvent: Function
@@ -27,6 +30,12 @@ class Canvas {
   _mode: Mode = Mode.Selector
 
   readonly el: HTMLElement
+
+  readonly borders: Group
+
+  readonly chars: Group
+
+  readonly grids: Group
 
   cellMgr: CellManager
 
@@ -40,30 +49,33 @@ class Canvas {
       fitted: true,
     }).appendTo(parent)
 
+    this.grids = this.ctx.makeGroup()
+    this.borders = this.ctx.makeGroup()
+    this.chars = this.ctx.makeGroup()
+
     this.cellMgr = new CellManager(this)
 
     const { domElement: el } = this.ctx.renderer
     this.addEventListener = el.addEventListener.bind(el)
     this.dispatchEvent = el.dispatchEvent.bind(el)
-
     this.coordinate = new Coordinate(this)
     this.selector = new Selector(this)
     this.box = new RectTool(this)
     this.line = new LineTool(this)
+    this.text = new TextTool(this)
 
     window.addEventListener('keydown', (e: KeyboardEvent) => {
-      console.log(e)
       let event = new CustomEvent<KeyboardDetail>('canvaskeydown', {
-        detail: { code: e.code },
+        detail: { code: e.code, key: e.key },
       })
 
       el.dispatchEvent(event)
     })
   }
 
-  set mode(mode:Mode) {
+  set mode(mode: Mode) {
     this._mode = mode
-    this.ctx.dispatchEvent("modechange",this.mode, mode)
+    this.ctx.dispatchEvent('modechange', this.mode, mode)
   }
 
   get mode() {

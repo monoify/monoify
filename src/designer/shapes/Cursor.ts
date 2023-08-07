@@ -1,7 +1,7 @@
 import { Rectangle } from 'two.js/src/shapes/rectangle'
 import { CellPosition } from '../types'
 
-export default class CursorShape extends Rectangle {
+export default class Cursor extends Rectangle {
 
   private _cell: CellPosition
 
@@ -10,7 +10,6 @@ export default class CursorShape extends Rectangle {
     width: number,
     height: number,
     fill: string,
-    blink: boolean = false
   ) {
     super(cell.scx, cell.scy, width, height)
     this.fill = fill

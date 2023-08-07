@@ -1,5 +1,5 @@
 import Canvas, { Mode } from '../Canvas'
-import { CursorDetail } from '../Cursor'
+import { CursorDetail } from '../Coordinate'
 import { Line } from '../shapes'
 import { CellPosition } from '../types'
 import { onKey } from '../util'
@@ -50,7 +50,7 @@ export default class LineTool {
     this.line.stroke = '#999'
     this.line.linewidth = 1
 
-    this.canvas.ctx.scene.add(this.line)
+    this.canvas.borders.add(this.line)
   }
 
   onCursorDown = (e: CustomEvent<CursorDetail>) => {
@@ -88,7 +88,7 @@ export default class LineTool {
 
   concel = () => {
     if (this.line) {
-      this.canvas.ctx.remove(this.line)
+      this.line.remove()
       this.line = undefined
       this.isDrawing = false
     }

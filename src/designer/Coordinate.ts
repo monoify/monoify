@@ -1,4 +1,3 @@
-import { Rectangle } from 'two.js/src/shapes/rectangle'
 import Canvas from './Canvas'
 import Cursor from './shapes/Cursor'
 import Two from 'two.js'
@@ -6,37 +5,33 @@ import { ZUI } from 'two.js/extras/jsm/zui'
 import { Vector } from 'two.js/src/vector'
 import { Group } from 'two.js/src/group'
 import { CellPosition } from './types'
-import { cursorTo } from 'readline'
 
 export default class Coordinate {
   private canvas: Canvas
 
-  private _cursor: Cursor
+  private _pointer: Cursor
 
   private bg: string
 
   private zui: ZUI
 
-  private grids: Group
-
   private mv: Vector = new Two.Vector()
 
   // surface measure
-  private _cellInnerWidth: number
+  cellInnerWidth: number
 
   // surface measure
-  private _cellBorder: number = 0.5
+  cellBorder: number = 0.5
 
   // surface measure
-  private _cellInnerHeight: number
+  cellInnerHeight: number
 
-  constructor(canvas: Canvas, fill: string = '#aaa') {
+  constructor(canvas: Canvas, fill: string = '#EFECEC') {
     this.canvas = canvas
 
-    this._cellInnerWidth = canvas.cellWidth
-    this._cellInnerHeight = canvas.cellHeight
+    this.cellInnerWidth = canvas.cellWidth
+    this.cellInnerHeight = canvas.cellHeight
 
-    this.grids = canvas.ctx.makeGroup()
     this.zui = new ZUI(this.canvas.ctx.scene, this.canvas.el)
     this.zui.addLimits(0.3, 4)
 
@@ -56,14 +51,14 @@ export default class Coordinate {
     this.canvas.ctx.bind('resize', this.initGrids)
 
     // style cursor
-    const cursorCell: CellPosition = this.getCellByPostion(0, 0)
-    this._cursor = Coordinate.makeCursor(
+    const cursorCell: CellPosition = this.getCellByClientPostion(0, 0)
+    this._pointer = Coordinate.makeCursor(
       cursorCell,
-      this._cellInnerWidth,
-      this._cellInnerHeight,
+      this.cellInnerWidth,
+      this.cellInnerHeight,
       fill
     )
-    this.canvas.ctx.scene.add(this._cursor)
+    this.canvas.grids.add(this._pointer)
     this.bg = fill
     this.canvas.ctx.renderer.domElement.style.cursor = 'crosshair'
   }
@@ -72,8 +67,8 @@ export default class Coordinate {
     return {
       row,
       col,
-      scx: (row + 0.5) * this.cellWidth,
-      scy: (col + 0.5) * this.cellHeight,
+      scx: (col + 0.5) * this.cellWidth,
+      scy: (row + 0.5) * this.cellHeight,
     }
   }
 
@@ -87,15 +82,15 @@ export default class Coordinate {
   }
 
   get cellWidth() {
-    return this._cellInnerWidth + this._cellBorder * 2
+    return this.cellInnerWidth + this.cellBorder * 2
   }
 
   get cellHeight() {
-    return this._cellInnerHeight + this._cellBorder * 2
+    return this.cellInnerHeight + this.cellBorder * 2
   }
 
   // get cell position by client coordinate
-  getCellByPostion(x: number, y: number): CellPosition {
+  getCellByClientPostion(x: number, y: number): CellPosition {
     let { x: sx, y: sy } = this.zui.clientToSurface(x, y)
 
     let col = Math.floor(sx / this.cellWidth)
@@ -108,14 +103,14 @@ export default class Coordinate {
 
   // generate girds to fit current viewport
   initGrids = () => {
-    if (this.grids?.children) {
-      this.grids.children.splice(0, this.grids.children?.length)
+    if (this.canvas.grids.children) {
+      this.canvas.grids.children.splice(0, this.canvas.grids.children?.length)
     }
 
     let { x: sfw, y: osy } = this.zui.clientToSurface(this.canvas.ctx.width, 0)
     let { x: osx, y: sfh } = this.zui.clientToSurface(0, this.canvas.ctx.height)
 
-    let oc = this.getCellByPostion(0, 0) // origin cell
+    let oc = this.getCellByClientPostion(0, 0) // origin cell
 
     for (let ri = 0, hp = oc.scy + this.cellHeight / 2; hp <= sfh; ri++) {
       if (ri == 0) {
@@ -127,8 +122,8 @@ export default class Coordinate {
           oc.scy + this.cellHeight / 2
         )
         top.stroke = '#dedede'
-        top.linewidth = this._cellBorder
-        this.grids.children.push(top)
+        top.linewidth = this.cellBorder
+        this.canvas.grids.children.push(top)
       }
       // merged horizontal line: cell border with * 2
       let mh = this.canvas.ctx.makeLine(
@@ -139,8 +134,8 @@ export default class Coordinate {
       )
 
       mh.stroke = '#dedede'
-      mh.linewidth = this._cellBorder * 2
-      this.grids.children.push(mh)
+      mh.linewidth = this.cellBorder * 2
+      this.canvas.grids.children.push(mh)
 
       hp += this.cellHeight
     }
@@ -155,8 +150,8 @@ export default class Coordinate {
           sfh
         )
         left.stroke = '#dedede'
-        left.linewidth = this._cellBorder
-        this.grids.children.push(left)
+        left.linewidth = this.cellBorder
+        this.canvas.grids.children.push(left)
       }
       // merged horizontal line: cell border with * 2
       let mv = this.canvas.ctx.makeLine(
@@ -167,8 +162,8 @@ export default class Coordinate {
       )
 
       mv.stroke = '#dedede'
-      mv.linewidth = this._cellBorder * 2
-      this.grids.children.push(mv)
+      mv.linewidth = this.cellBorder * 2
+      this.canvas.grids.children.push(mv)
       vp += this.cellWidth
     }
   }
@@ -191,7 +186,7 @@ export default class Coordinate {
 
     let cell: CellPosition = { col, row, scx, scy }
 
-    this._cursor.cell = cell
+    this._pointer.cell = cell
 
     this.canvas.dispatchEvent(
       new CustomEvent<CursorDetail>(type, {
@@ -210,14 +205,10 @@ export default class Coordinate {
     )
   }
 
-  public set show(display: boolean) {
-    if (this._cursor) {
-      this._cursor.fill = display ? this.bg : 'transparent'
+  set showPointer(display: boolean) {
+    if (this._pointer) {
+      this._pointer.fill = display ? this.bg : 'transparent'
     }
-  }
-
-  hide = () => {
-    this._cursor.fill = this.bg
   }
 }
 

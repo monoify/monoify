@@ -1,5 +1,5 @@
 import Canvas from './Canvas'
-import { Line } from './shapes'
+import { Character, Line } from './shapes'
 import { Direction } from './shapes/Line'
 import { CellBorder, Charset } from './types'
 
@@ -37,6 +37,10 @@ export class Cell {
     if (anchor != Direction.None && this.state == Direction.None) {
       this.state
     }
+  }
+
+  setChar(char: string) {
+    this.character = char
   }
 
   setBorder(
@@ -190,38 +194,47 @@ export class Cell {
 export default class CellManager {
   private canvas: Canvas
 
-  private store: Line[] = []
+  private lines: Line[] = []
+
+  private chars: Character[] = []
+
+  private minCol: number = Number.MAX_VALUE
+  private minRow: number = Number.MAX_VALUE
+  private maxCol: number = Number.MIN_VALUE
+  private maxRow: number = Number.MIN_VALUE
 
   constructor(canvas: Canvas) {
     this.canvas = canvas
   }
 
   addLines(line: Line | Line[]) {
-    this.store = this.store.concat(line)
+    const lines: Line[] = !Array.isArray(line) ? [line] : line
+    for (let i = 0; i < lines.length; i++) {
+      let { row: br, col: bc } = lines[i].begin
+      let { row: er, col: ec } = lines[i].end
+      this.minCol = Math.min(this.minCol, bc, ec)
+      this.minRow = Math.min(this.minRow, br, er)
+      this.maxCol = Math.max(this.maxCol, bc, ec)
+      this.maxRow = Math.max(this.maxRow, br, er)
+      this.lines.push(lines[i])
+    }
+  }
+
+  addCharacter(char: Character) {
+    let { row: br, col: bc } = char.cell
+    this.minCol = Math.min(this.minCol, bc)
+    this.minRow = Math.min(this.minRow, br)
+    this.maxCol = Math.max(this.maxCol, bc)
+    this.maxRow = Math.max(this.maxRow, br)
+    this.chars.push(char)
   }
 
   dumpText(charset: Charset = DEFAULT_CHARSET): string {
-    let minCol: number = Number.MAX_VALUE
-    let minRow: number = Number.MAX_VALUE
-    let maxCol: number = Number.MIN_VALUE
-    let maxRow: number = Number.MIN_VALUE
-
-    // find boundry
-    for (let i = 0; i < this.store.length; i++) {
-      let obj = this.store[i]
-      let { row: br, col: bc } = obj.begin
-      let { row: er, col: ec } = obj.end
-
-      minCol = Math.min(minCol, bc, ec)
-      minRow = Math.min(minRow, br, er)
-      maxCol = Math.max(maxCol, bc, ec)
-      maxRow = Math.max(maxRow, br, er)
-    }
 
     let map: Cell[][] = []
-    for (let i = 0; i < maxRow - minRow + 1; i++) {
+    for (let i = 0; i < this.maxRow - this.minRow + 1; i++) {
       let row: Cell[] = []
-      for (let j = 0; j < maxCol - minCol + 1; j++) {
+      for (let j = 0; j < this.maxCol - this.minCol + 1; j++) {
         let cell = new Cell(i, j)
         row.push(cell)
       }
@@ -229,12 +242,12 @@ export default class CellManager {
     }
 
     // remapping
-    for (let i = 0; i < this.store.length; i++) {
-      let obj = this.store[i]
-      let br = obj.begin.row - minRow
-      let bc = obj.begin.col - minCol
-      let er = obj.end.row - minRow
-      let ec = obj.end.col - minCol
+    for (let i = 0; i < this.lines.length; i++) {
+      let obj = this.lines[i]
+      let br = obj.begin.row - this.minRow
+      let bc = obj.begin.col - this.minCol
+      let er = obj.end.row - this.minRow
+      let ec = obj.end.col - this.minCol
 
       if (obj.direction == Direction.HORIZONTAL_LEFT) {
         CellManager.fillToLeft(map, br, bc, ec)
@@ -253,9 +266,27 @@ export default class CellManager {
       }
     }
 
+    for (let i = 0; i < this.chars.length; i++) {
+      let { row, col } = this.chars[i].cell
+      CellManager.fillChar(
+        map,
+        row - this.minRow,
+        col - this.minCol,
+        this.chars[i].char
+      )
+    }
+
     return map
-      .map((line) => line.map((c) => charset[c.border]).join(''))
+      .map((line) =>
+        line
+          .map((c) => (c.character ? c.character : charset[c.border]))
+          .join('')
+      )
       .join('\n')
+  }
+
+  static fillChar(map: Cell[][], row: number, col: number, char: string) {
+    map[row][col].setChar(char)
   }
 
   static fillToLeft(map: Cell[][], row: number, bc: number, ec: number) {

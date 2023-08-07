@@ -4,7 +4,6 @@ import { Rect } from '../shapes'
 import { CellPosition } from '../types'
 
 export default class RectTool {
-
   private canvas: Canvas
 
   private coordinate: Coordinate
@@ -27,7 +26,7 @@ export default class RectTool {
     rect.stroke = '#999'
     rect.linewidth = 1
     rect.noFill()
-    this.canvas.ctx.scene.add(rect)
+    this.canvas.borders.add(rect)
     return rect
   }
 
@@ -44,7 +43,7 @@ export default class RectTool {
 
   concel() {
     if (this.rect) {
-      this.canvas.ctx.remove(this.rect)
+      this.rect.remove()
       this.rect = undefined
       this.isDrawing = false
     }
@@ -71,7 +70,7 @@ export default class RectTool {
 
     let { x, y, col, row } = e.detail
 
-    this.coordinate.show = false
+    this.coordinate.showPointer = false
     this.isDrawing = true
     this.rect = this.makeRect({ col, row, scx: x, scy: y })
   }
@@ -99,6 +98,6 @@ export default class RectTool {
         this.concel()
       }
     }
-    this.coordinate.show = true
+    this.coordinate.showPointer = true
   }
 }
