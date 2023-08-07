@@ -9,8 +9,7 @@ const gitInfo = {
   lastMod: __GIT_COMMIT_DATE__,
   message: __GIT_COMMIT_MESG__,
   branch: __GIT_COMMIT_BRANCH__,
-  link:
-    'https://github.com/eatgrass/text-diagram/commit/' + __GIT_COMMIT_HASH__,
+  link: 'https://github.com/monoify/monoify/commit/' + __GIT_COMMIT_HASH__,
 }
 
 let canvas: Canvas
