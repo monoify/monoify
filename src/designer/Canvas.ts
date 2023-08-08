@@ -45,7 +45,7 @@ class Canvas {
     this.el = parent
 
     this.ctx = new Two({
-      // type: Two.Types.webgl,
+      type: Two.Types.canvas,
       fullscreen: true,
       autostart: true,
       fitted: true,
