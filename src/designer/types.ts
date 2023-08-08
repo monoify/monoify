@@ -12,7 +12,7 @@ export type CellPosition = {
 
 export enum CellBorder {
   Empty, // ' ',
-  Horizontal, // '−',
+  Horizontal, // '─',
   Vertical, // '│',
   DownRight, // '┌',
   DownLeft, // '┐',

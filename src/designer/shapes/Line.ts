@@ -25,7 +25,8 @@ export default class Line extends Path {
     this._end = end
   }
 
-  get direction():Direction {
+  //FIXME @deprecated
+  get _direction(): Direction {
     if (this._begin.scy < this._end.scy) {
       return Direction.VERTICAL_DOWN
     }
@@ -34,15 +35,34 @@ export default class Line extends Path {
       return Direction.VERTICAL_UP
     }
 
-    if(this._begin.scx < this._end.scx) {
+    if (this._begin.scx < this._end.scx) {
       return Direction.HORIZONTAL_RIGHT
     }
 
-    if(this._begin.scx > this._end.scx) {
+    if (this._begin.scx > this._end.scx) {
       return Direction.HORIZONTAL_LEFT
     }
 
     return Direction.None
+  }
+
+  // axis[0] fixed, axis[1] change
+  get axesInfo(): AxesInfo {
+    let axes =
+      this._begin.row == this._end.row
+        ? [Axis.HORIZONTAL, Axis.VERTICAL]
+        : [Axis.VERTICAL, Axis.HORIZONTAL]
+    return {
+      axes,
+      pos: [this._begin[axes[0]], this._begin[axes[1]], this._end[axes[1]]],
+    }
+  }
+
+  get ordered() {
+    let { axes } = this.axesInfo
+    return this._begin[axes[1]] > this._end[axes[1]]
+      ? [this._end, this._begin]
+      : [this._begin, this._end]
   }
 
   get begin() {
@@ -66,11 +86,20 @@ export default class Line extends Path {
   }
 }
 
+type AxesInfo = {
+  axes: Axis[]
+  pos: number[]
+}
+
+export enum Axis {
+  HORIZONTAL = 'row',
+  VERTICAL = 'col',
+}
+
 export enum Direction {
   VERTICAL_UP = 0,
   VERTICAL_DOWN = 1,
   HORIZONTAL_RIGHT = 2,
   HORIZONTAL_LEFT = 3,
-  None = 4
-
+  None = 4,
 }

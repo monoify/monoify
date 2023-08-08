@@ -1,6 +1,7 @@
+import { Shape } from 'two.js/src/shape'
 import Canvas from './Canvas'
 import { Character, Line } from './shapes'
-import { Direction } from './shapes/Line'
+import { Direction, Axis } from './shapes/Line'
 import { CellBorder, Charset } from './types'
 
 const DEFAULT_CHARSET: Charset = {
@@ -228,6 +229,8 @@ export default class CellManager {
 
   private chars: Character[] = []
 
+  private _cells: { [key: string]: Shape[] } = {}
+
   private minCol: number = Number.MAX_VALUE
   private minRow: number = Number.MAX_VALUE
   private maxCol: number = Number.MIN_VALUE
@@ -235,6 +238,13 @@ export default class CellManager {
 
   constructor(canvas: Canvas) {
     this.canvas = canvas
+  }
+
+  getShape = (row: number, col: number): Shape | undefined => {
+    console.log(this._cells)
+    let cell = this._cells[`${row}_${col}`]
+    // FIXME character first, then last shape
+    return cell ? cell[cell.length - 1] : undefined
   }
 
   addLines(line: Line | Line[]) {
@@ -246,16 +256,29 @@ export default class CellManager {
       this.minRow = Math.min(this.minRow, br, er)
       this.maxCol = Math.max(this.maxCol, bc, ec)
       this.maxRow = Math.max(this.maxRow, br, er)
+
+      let info = lines[i].axesInfo
+      for (let j = info.pos[1]; j <= info.pos[2]; j++) {
+        let key =
+          info.axes[0] == Axis.HORIZONTAL
+            ? `${info.pos[0]}_${j}`
+            : `${j}_${info.pos[0]}`
+        this._cells[key] = this._cells[key] ?? []
+        this._cells[key].push(lines[i])
+      }
       this.lines.push(lines[i])
     }
   }
 
   addCharacter(char: Character) {
     let { row: br, col: bc } = char.cell
+    let key = `${br}_${bc}`
     this.minCol = Math.min(this.minCol, bc)
     this.minRow = Math.min(this.minRow, br)
     this.maxCol = Math.max(this.maxCol, bc)
     this.maxRow = Math.max(this.maxRow, br)
+    this._cells[key] = this._cells[key] ?? []
+    this._cells[key].push(char)
     this.chars.push(char)
   }
 
@@ -288,19 +311,20 @@ export default class CellManager {
       let er = obj.end.row - this.minRow
       let ec = obj.end.col - this.minCol
 
-      if (obj.direction == Direction.HORIZONTAL_LEFT) {
+      // FIXME: we can make all the paths left to right, up to down by creating them in the convention of end > begin
+      if (obj._direction == Direction.HORIZONTAL_LEFT) {
         CellManager.fillToLeft(map, br, bc, ec)
       }
 
-      if (obj.direction == Direction.HORIZONTAL_RIGHT) {
+      if (obj._direction == Direction.HORIZONTAL_RIGHT) {
         CellManager.fillToRight(map, br, bc, ec)
       }
 
-      if (obj.direction == Direction.VERTICAL_UP) {
+      if (obj._direction == Direction.VERTICAL_UP) {
         CellManager.fillToUp(map, bc, br, er)
       }
 
-      if (obj.direction == Direction.VERTICAL_DOWN) {
+      if (obj._direction == Direction.VERTICAL_DOWN) {
         CellManager.fillToDown(map, bc, br, er)
       }
     }
@@ -360,6 +384,9 @@ export default class CellManager {
     }
   }
 
+  // Horizontal, // '−',   ┌─
+  // Vertical, // '│',     │a
+  // DownRight, // '┌',
   static fillToUp(map: Cell[][], col: number, br: number, er: number) {
     for (let i = br; i >= er; i--) {
       let d = Direction.None
