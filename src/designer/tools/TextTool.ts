@@ -37,7 +37,6 @@ export default class TextTool {
   onKeyDown = (e: CustomEvent<KeyboardDetail>) => {
     if (this.canvas.mode == Mode.Text) {
       let { key } = e.detail
-      console.log(key)
       if (this.chars.indexOf(key) >= 0) {
         this.addChar(key)
       } else if (key == 'Backspace') {

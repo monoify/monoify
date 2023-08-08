@@ -68,9 +68,24 @@ export class Cell {
         return
       }
 
+      if (
+        this.border == CellBorder.HorizontalUp &&
+        anchor == Direction.VERTICAL_DOWN
+      ) {
+        this.border = CellBorder.VerticalHorizontal
+        return
+      }
+
+      if (
+        this.border == CellBorder.HorizontalDown &&
+        anchor == Direction.VERTICAL_UP
+      ) {
+        this.border = CellBorder.VerticalHorizontal
+        return
+      }
+
       if (this.border == CellBorder.Horizontal) {
         if (this.state == Direction.None) {
-          console.log(this.col, this.row, this.state)
           if (anchor == Direction.None) {
             this.border = CellBorder.VerticalHorizontal
             return
@@ -134,6 +149,20 @@ export class Cell {
       ) {
         this.border = CellBorder.HorizontalUp
         return
+      }
+
+      if (
+        this.border == CellBorder.VerticalLeft &&
+        anchor == Direction.HORIZONTAL_RIGHT
+      ) {
+        this.border = CellBorder.VerticalHorizontal
+      }
+
+      if (
+        this.border == CellBorder.VerticalRight &&
+        anchor == Direction.HORIZONTAL_LEFT
+      ) {
+        this.border = CellBorder.VerticalHorizontal
       }
 
       if (this.border == CellBorder.Vertical) {
