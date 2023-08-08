@@ -5,17 +5,17 @@ import { CellBorder, Charset } from './types'
 
 const DEFAULT_CHARSET: Charset = {
   [CellBorder.Empty]: ' ',
-  [CellBorder.Horizontal]: '-',
-  [CellBorder.Vertical]: '|',
-  [CellBorder.DownRight]: '+',
-  [CellBorder.DownLeft]: '+',
-  [CellBorder.UpRight]: '+',
-  [CellBorder.UpLeft]: '+',
-  [CellBorder.VerticalRight]: '+',
-  [CellBorder.VerticalLeft]: '+',
-  [CellBorder.HorizontalDown]: '+',
-  [CellBorder.HorizontalUp]: '+',
-  [CellBorder.VerticalHorizontal]: '+',
+  [CellBorder.Horizontal]: '─',
+  [CellBorder.Vertical]: '│',
+  [CellBorder.DownRight]: '┌',
+  [CellBorder.DownLeft]: '┐',
+  [CellBorder.UpRight]: '└',
+  [CellBorder.UpLeft]: '┘',
+  [CellBorder.VerticalRight]: '├',
+  [CellBorder.VerticalLeft]: '┤',
+  [CellBorder.HorizontalDown]: '┬',
+  [CellBorder.HorizontalUp]: '┴',
+  [CellBorder.VerticalHorizontal]: '┼',
 }
 
 export class Cell {
@@ -35,7 +35,7 @@ export class Cell {
   update(type: CellBorder.Vertical | CellBorder.Horizontal, anchor: Direction) {
     this.setBorder(type, anchor)
     if (anchor != Direction.None && this.state == Direction.None) {
-      this.state
+      this.state = anchor
     }
   }
 
@@ -70,6 +70,7 @@ export class Cell {
 
       if (this.border == CellBorder.Horizontal) {
         if (this.state == Direction.None) {
+          console.log(this.col, this.row, this.state)
           if (anchor == Direction.None) {
             this.border = CellBorder.VerticalHorizontal
             return
@@ -230,18 +231,20 @@ export default class CellManager {
   }
 
   remove(obj: Character) {
-    let index = this.chars.findIndex(ch=> ch.id == obj.id)
-    if(index >=0) {
-      this.chars.splice(index,1)
+    let index = this.chars.findIndex((ch) => ch.id == obj.id)
+    if (index >= 0) {
+      this.chars.splice(index, 1)
     }
   }
 
-  dumpText(charset: Charset = DEFAULT_CHARSET): string {
-
+  dumpText(charset: Charset = DEFAULT_CHARSET): any {
     let map: Cell[][] = []
-    for (let i = 0; i < this.maxRow - this.minRow + 1; i++) {
+
+    let row = this.maxRow - this.minRow + 1
+    let col = this.maxCol - this.minCol + 1
+    for (let i = 0; i < row; i++) {
       let row: Cell[] = []
-      for (let j = 0; j < this.maxCol - this.minCol + 1; j++) {
+      for (let j = 0; j < col; j++) {
         let cell = new Cell(i, j)
         row.push(cell)
       }
@@ -283,13 +286,17 @@ export default class CellManager {
       )
     }
 
-    return map
-      .map((line) =>
-        line
-          .map((c) => (c.character ? c.character : charset[c.border]))
-          .join('')
-      )
-      .join('\n')
+    return {
+      row,
+      col,
+      content: map
+        .map((line) =>
+          line
+            .map((c) => (c.character ? c.character : charset[c.border]))
+            .join('')
+        )
+        .join('\n'),
+    }
   }
 
   static fillChar(map: Cell[][], row: number, col: number, char: string) {

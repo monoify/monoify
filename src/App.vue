@@ -4,6 +4,11 @@ import { onMounted, reactive, ref } from 'vue'
 import Canvas, { Mode } from '@/designer/Canvas'
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
+const show = ref<boolean>(false)
+const row = ref<number>(1)
+const col = ref<number>(1)
+const output = ref<string>('')
+
 const gitInfo = {
   commit: __GIT_COMMIT_HASH__,
   lastMod: __GIT_COMMIT_DATE__,
@@ -27,12 +32,27 @@ const switchMode = (mode: Mode) => {
 }
 
 const dumpText = () => {
-  console.log(canvas.cellMgr.dumpText())
-  alert('open the DevTools and copy the text')
+  let dump = canvas.cellMgr.dumpText()
+  row.value = Math.max(dump.row, 30)
+  col.value = Math.max(dump.col, 80)
+  output.value = dump.content
+  show.value = true
 }
 </script>
 
 <template>
+  <div class="text" v-if="show">
+    <span
+      @click="show = false"
+      style="position: absolute; right: 10px; top: 7px; font-size: 20px; cursor: pointer;"
+      >×</span
+    >
+    <div style="padding-top: 30px; padding-left: 10px; padding-right: 10px;">
+      <textarea :rows="row" :cols="col" spellcheck="false"
+        >{{ output }}
+      </textarea>
+    </div>
+  </div>
   <div class="toolbar">
     <span
       class="toolbar-item"
@@ -121,5 +141,14 @@ const dumpText = () => {
 .release .git-info-text {
   font-size: 13px;
   margin: 3px 0;
+}
+
+.text {
+  position: absolute;
+  z-index: 105;
+  background: #fff;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 </style>

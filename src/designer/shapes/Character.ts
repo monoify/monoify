@@ -20,6 +20,7 @@ export default class Character extends Group {
     this._cell = cell
     this._bg = new Rectangle(cell.scx, cell.scy, width, height)
     this._text = new Text(char, cell.scx, cell.scy)
+    this._text.family = "FiraMono"
     this._bg.fill = '#fff'
     this._bg.linewidth = 1
     this._bg.stroke = '#dedede'
