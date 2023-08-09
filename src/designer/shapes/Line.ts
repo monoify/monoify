@@ -4,6 +4,7 @@ import { Anchor } from 'two.js/src/anchor'
 import { Commands } from 'two.js/src/utils/path-commands'
 
 export default class Line extends Path {
+
   _begin: CellPosition
 
   _end: CellPosition
@@ -25,28 +26,6 @@ export default class Line extends Path {
     this._end = end
   }
 
-  //FIXME @deprecated
-  get _direction(): Direction {
-    if (this._begin.scy < this._end.scy) {
-      return Direction.VERTICAL_DOWN
-    }
-
-    if (this._begin.scy > this._end.scy) {
-      return Direction.VERTICAL_UP
-    }
-
-    if (this._begin.scx < this._end.scx) {
-      return Direction.HORIZONTAL_RIGHT
-    }
-
-    if (this._begin.scx > this._end.scx) {
-      return Direction.HORIZONTAL_LEFT
-    }
-
-    return Direction.None
-  }
-
-  // axis[0] fixed, axis[1] change
   get vector(): number[] {
     return [this._end.row - this._begin.row, this._end.col - this._begin.col]
   }
@@ -61,11 +40,11 @@ export default class Line extends Path {
 
         let anchor = Direction.None
         if (j == 0) {
-          anchor = Direction.HORIZONTAL_RIGHT
+          anchor = Direction.RIGHT
         }
 
         if (j == Math.abs(vector[1])) {
-          anchor = Direction.HORIZONTAL_LEFT
+          anchor = Direction.LEFT
         }
         cells.push({
           row: this._begin.row,
@@ -81,11 +60,11 @@ export default class Line extends Path {
         let left: '_begin' | '_end' = vector[0] > 0 ? '_begin' : '_end'
         let anchor = Direction.None
         if (j == 0) {
-          anchor = Direction.VERTICAL_DOWN
+          anchor = Direction.DOWN
         }
 
         if (j == Math.abs(vector[0])) {
-          anchor = Direction.VERTICAL_UP
+          anchor = Direction.UP
         }
         cells.push({
           row: this[left].row + j,
@@ -97,13 +76,6 @@ export default class Line extends Path {
     }
 
     return cells
-  }
-
-  get ordered(): CellPosition[] {
-    let vector = this.vector
-    return vector[0] + vector[1] > 0
-      ? [this._begin, this.end]
-      : [this._end, this.begin]
   }
 
   get begin() {
@@ -127,21 +99,10 @@ export default class Line extends Path {
   }
 }
 
-type VectorInfo = {
-  axes: Axis[]
-  pos: number[]
-  postive: boolean
-}
-
-export enum Axis {
-  HORIZONTAL = 'row',
-  VERTICAL = 'col',
-}
-
 export enum Direction {
-  VERTICAL_UP = 0,
-  VERTICAL_DOWN = 1,
-  HORIZONTAL_RIGHT = 2,
-  HORIZONTAL_LEFT = 3,
+  UP = 0,
+  DOWN = 1,
+  RIGHT = 2,
+  LEFT = 3,
   None = 4,
 }

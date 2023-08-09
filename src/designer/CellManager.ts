@@ -1,7 +1,7 @@
 import { Shape } from 'two.js/src/shape'
 import Canvas from './Canvas'
 import { Character, Line } from './shapes'
-import { Direction, Axis } from './shapes/Line'
+import { Direction } from './shapes/Line'
 import { CellBorder, Charset } from './types'
 
 const DEFAULT_CHARSET: Charset = {
@@ -34,8 +34,13 @@ export class Cell {
   }
 
   update(type: CellBorder.Vertical | CellBorder.Horizontal, anchor: Direction) {
+    let curBorder = this.border
     this.setBorder(type, anchor)
-    if (anchor != Direction.None && this.state == Direction.None) {
+    if (
+      anchor != Direction.None &&
+      this.state == Direction.None &&
+      curBorder != type
+    ) {
       this.state = anchor
     }
   }
@@ -69,65 +74,64 @@ export class Cell {
         return
       }
 
-      if (
-        this.border == CellBorder.HorizontalUp &&
-        anchor == Direction.VERTICAL_DOWN
-      ) {
+      if (this.border == CellBorder.HorizontalUp && anchor == Direction.DOWN) {
         this.border = CellBorder.VerticalHorizontal
         return
       }
 
-      if (
-        this.border == CellBorder.HorizontalDown &&
-        anchor == Direction.VERTICAL_UP
-      ) {
+      if (this.border == CellBorder.HorizontalDown && anchor == Direction.UP) {
         this.border = CellBorder.VerticalHorizontal
         return
       }
 
       if (this.border == CellBorder.Horizontal) {
+        console.log(
+          `row: ${this.row}, col: ${this.col}, state: ${
+            Direction[this.state]
+          }, anchor: ${Direction[anchor]} `
+        )
         if (this.state == Direction.None) {
           if (anchor == Direction.None) {
             this.border = CellBorder.VerticalHorizontal
             return
-          } else if (anchor == Direction.VERTICAL_UP) {
+          } else if (anchor == Direction.UP) {
             this.border = CellBorder.HorizontalUp
             return
-          } else if (anchor == Direction.VERTICAL_DOWN) {
+          } else if (anchor == Direction.DOWN) {
             this.border = CellBorder.HorizontalDown
             return
           }
         }
 
-        if (this.state == Direction.HORIZONTAL_LEFT) {
+        if (this.state == Direction.LEFT) {
           if (anchor == Direction.None) {
             this.border = CellBorder.VerticalLeft
             return
           }
 
-          if (anchor == Direction.VERTICAL_UP) {
+          if (anchor == Direction.UP) {
             this.border = CellBorder.UpLeft
             return
           }
 
-          if (anchor == Direction.VERTICAL_DOWN) {
+          if (anchor == Direction.DOWN) {
             this.border = CellBorder.DownLeft
             return
           }
         }
 
-        if (this.state == Direction.HORIZONTAL_RIGHT) {
+        if (this.state == Direction.RIGHT) {
           if (anchor == Direction.None) {
             this.border = CellBorder.VerticalRight
             return
           }
 
-          if (anchor == Direction.VERTICAL_UP) {
+          if (anchor == Direction.UP) {
             this.border = CellBorder.UpRight
             return
           }
 
-          if (anchor == Direction.VERTICAL_DOWN) {
+          if (anchor == Direction.DOWN) {
             this.border = CellBorder.DownRight
             return
           }
@@ -152,17 +156,11 @@ export class Cell {
         return
       }
 
-      if (
-        this.border == CellBorder.VerticalLeft &&
-        anchor == Direction.HORIZONTAL_RIGHT
-      ) {
+      if (this.border == CellBorder.VerticalLeft && anchor == Direction.RIGHT) {
         this.border = CellBorder.VerticalHorizontal
       }
 
-      if (
-        this.border == CellBorder.VerticalRight &&
-        anchor == Direction.HORIZONTAL_LEFT
-      ) {
+      if (this.border == CellBorder.VerticalRight && anchor == Direction.LEFT) {
         this.border = CellBorder.VerticalHorizontal
       }
 
@@ -173,46 +171,46 @@ export class Cell {
             return
           }
 
-          if (anchor == Direction.HORIZONTAL_LEFT) {
+          if (anchor == Direction.LEFT) {
             this.border = CellBorder.VerticalLeft
             return
           }
 
-          if (anchor == Direction.HORIZONTAL_RIGHT) {
+          if (anchor == Direction.RIGHT) {
             this.border = CellBorder.VerticalRight
             return
           }
         }
 
-        if (this.state == Direction.VERTICAL_UP) {
+        if (this.state == Direction.UP) {
           if (anchor == Direction.None) {
             this.border = CellBorder.HorizontalUp
             return
           }
 
-          if (anchor == Direction.HORIZONTAL_LEFT) {
+          if (anchor == Direction.LEFT) {
             this.border = CellBorder.UpLeft
             return
           }
 
-          if (anchor == Direction.HORIZONTAL_RIGHT) {
+          if (anchor == Direction.RIGHT) {
             this.border = CellBorder.UpRight
             return
           }
         }
 
-        if (this.state == Direction.VERTICAL_DOWN) {
+        if (this.state == Direction.DOWN) {
           if (anchor == Direction.None) {
             this.border = CellBorder.HorizontalDown
             return
           }
 
-          if (anchor == Direction.HORIZONTAL_LEFT) {
+          if (anchor == Direction.LEFT) {
             this.border = CellBorder.DownLeft
             return
           }
 
-          if (anchor == Direction.HORIZONTAL_RIGHT) {
+          if (anchor == Direction.RIGHT) {
             this.border = CellBorder.DownRight
             return
           }
