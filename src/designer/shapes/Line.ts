@@ -1,5 +1,5 @@
 import { Path } from 'two.js/src/path'
-import { CellPosition } from '../types'
+import { CellBorder, CellPosition } from '../types'
 import { Anchor } from 'two.js/src/anchor'
 import { Commands } from 'two.js/src/utils/path-commands'
 
@@ -47,22 +47,63 @@ export default class Line extends Path {
   }
 
   // axis[0] fixed, axis[1] change
-  get axesInfo(): AxesInfo {
-    let axes =
-      this._begin.row == this._end.row
-        ? [Axis.HORIZONTAL, Axis.VERTICAL]
-        : [Axis.VERTICAL, Axis.HORIZONTAL]
-    return {
-      axes,
-      pos: [this._begin[axes[0]], this._begin[axes[1]], this._end[axes[1]]],
-    }
+  get vector(): number[] {
+    return [this._end.row - this._begin.row, this._end.col - this._begin.col]
   }
 
-  get ordered() {
-    let { axes } = this.axesInfo
-    return this._begin[axes[1]] > this._end[axes[1]]
-      ? [this._end, this._begin]
-      : [this._begin, this._end]
+  get cells(): any[] {
+    let vector = this.vector
+    let cells = []
+
+    if (vector[0] == 0) {
+      for (let j = 0; j <= Math.abs(vector[1]); j++) {
+        let left: '_begin' | '_end' = vector[1] > 0 ? '_begin' : '_end'
+
+        let anchor = Direction.None
+        if (j == 0) {
+          anchor = Direction.HORIZONTAL_RIGHT
+        }
+
+        if (j == Math.abs(vector[1])) {
+          anchor = Direction.HORIZONTAL_LEFT
+        }
+        cells.push({
+          row: this._begin.row,
+          col: this[left].col + j,
+          border: CellBorder.Horizontal,
+          anchor,
+        })
+      }
+    }
+
+    if (vector[1] == 0) {
+      for (let j = 0; j <= Math.abs(vector[0]); j++) {
+        let left: '_begin' | '_end' = vector[0] > 0 ? '_begin' : '_end'
+        let anchor = Direction.None
+        if (j == 0) {
+          anchor = Direction.VERTICAL_DOWN
+        }
+
+        if (j == Math.abs(vector[0])) {
+          anchor = Direction.VERTICAL_UP
+        }
+        cells.push({
+          row: this[left].row + j,
+          col: this._begin.col,
+          border: CellBorder.Vertical,
+          anchor,
+        })
+      }
+    }
+
+    return cells
+  }
+
+  get ordered(): CellPosition[] {
+    let vector = this.vector
+    return vector[0] + vector[1] > 0
+      ? [this._begin, this.end]
+      : [this._end, this.begin]
   }
 
   get begin() {
@@ -86,9 +127,10 @@ export default class Line extends Path {
   }
 }
 
-type AxesInfo = {
+type VectorInfo = {
   axes: Axis[]
   pos: number[]
+  postive: boolean
 }
 
 export enum Axis {

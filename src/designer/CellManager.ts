@@ -257,15 +257,12 @@ export default class CellManager {
       this.maxCol = Math.max(this.maxCol, bc, ec)
       this.maxRow = Math.max(this.maxRow, br, er)
 
-      let info = lines[i].axesInfo
-      for (let j = info.pos[1]; j <= info.pos[2]; j++) {
-        let key =
-          info.axes[0] == Axis.HORIZONTAL
-            ? `${info.pos[0]}_${j}`
-            : `${j}_${info.pos[0]}`
+      lines[i].cells.forEach((cell) => {
+        let key = `${cell.row}_${cell.col}`
         this._cells[key] = this._cells[key] ?? []
         this._cells[key].push(lines[i])
-      }
+      })
+
       this.lines.push(lines[i])
     }
   }
@@ -295,38 +292,21 @@ export default class CellManager {
     let row = this.maxRow - this.minRow + 1
     let col = this.maxCol - this.minCol + 1
     for (let i = 0; i < row; i++) {
-      let row: Cell[] = []
+      let rowCells: Cell[] = []
       for (let j = 0; j < col; j++) {
         let cell = new Cell(i, j)
-        row.push(cell)
+        rowCells.push(cell)
       }
-      map.push(row)
+      map.push(rowCells)
     }
 
     // remapping
     for (let i = 0; i < this.lines.length; i++) {
-      let obj = this.lines[i]
-      let br = obj.begin.row - this.minRow
-      let bc = obj.begin.col - this.minCol
-      let er = obj.end.row - this.minRow
-      let ec = obj.end.col - this.minCol
-
-      // FIXME: we can make all the paths left to right, up to down by creating them in the convention of end > begin
-      if (obj._direction == Direction.HORIZONTAL_LEFT) {
-        CellManager.fillToLeft(map, br, bc, ec)
-      }
-
-      if (obj._direction == Direction.HORIZONTAL_RIGHT) {
-        CellManager.fillToRight(map, br, bc, ec)
-      }
-
-      if (obj._direction == Direction.VERTICAL_UP) {
-        CellManager.fillToUp(map, bc, br, er)
-      }
-
-      if (obj._direction == Direction.VERTICAL_DOWN) {
-        CellManager.fillToDown(map, bc, br, er)
-      }
+      this.lines[i].cells.forEach((cell) => {
+        let cellRow = cell.row - this.minRow
+        let cellCol = cell.col - this.minCol
+        map[cellRow][cellCol].update(cell.border, cell.anchor)
+      })
     }
 
     for (let i = 0; i < this.chars.length; i++) {
@@ -354,65 +334,5 @@ export default class CellManager {
 
   static fillChar(map: Cell[][], row: number, col: number, char: string) {
     map[row][col].setChar(char)
-  }
-
-  static fillToLeft(map: Cell[][], row: number, bc: number, ec: number) {
-    for (let i = bc; i >= ec; i--) {
-      let d = Direction.None
-
-      if (i == bc) {
-        d = Direction.HORIZONTAL_LEFT
-      }
-      if (i == ec) {
-        d = Direction.HORIZONTAL_RIGHT
-      }
-
-      map[row][i].update(CellBorder.Horizontal, d)
-    }
-  }
-  static fillToRight(map: Cell[][], row: number, bc: number, ec: number) {
-    for (let i = bc; i <= ec; i++) {
-      let d = Direction.None
-
-      if (i == bc) {
-        d = Direction.HORIZONTAL_RIGHT
-      }
-      if (i == ec) {
-        d = Direction.HORIZONTAL_LEFT
-      }
-      map[row][i].update(CellBorder.Horizontal, d)
-    }
-  }
-
-  // Horizontal, // '−',   ┌─
-  // Vertical, // '│',     │a
-  // DownRight, // '┌',
-  static fillToUp(map: Cell[][], col: number, br: number, er: number) {
-    for (let i = br; i >= er; i--) {
-      let d = Direction.None
-
-      if (i == br) {
-        d = Direction.VERTICAL_UP
-      }
-      if (i == er) {
-        d = Direction.VERTICAL_DOWN
-      }
-
-      map[i][col].update(CellBorder.Vertical, d)
-    }
-  }
-
-  static fillToDown(map: Cell[][], col: number, br: number, er: number) {
-    for (let i = br; i <= er; i++) {
-      let d = Direction.None
-
-      if (i == br) {
-        d = Direction.VERTICAL_DOWN
-      }
-      if (i == er) {
-        d = Direction.VERTICAL_UP
-      }
-      map[i][col].update(CellBorder.Vertical, d)
-    }
   }
 }
