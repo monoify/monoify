@@ -123,7 +123,6 @@ export default class TextTool {
         this.cursorBg[0]
       )
       this.inputCursor.noStroke()
-
       this.canvas.cursor.add(this.inputCursor)
       this._blinkTimer = setInterval(this.blink, 750)
     }
@@ -140,13 +139,12 @@ export default class TextTool {
     }
   }
 
-  onModeChange = (_: Mode, changedMode: Mode) => {
-    if (changedMode != Mode.Text) {
+  onModeChange = (curMode: Mode, changedMode: Mode) => {
+    if (curMode == Mode.Text && changedMode != Mode.Text) {
       this.isInputting = false
-      this.canvas.ctx.off('update', this.blink)
       clearInterval(this._blinkTimer)
       this.inputCursor?.remove()
-      this.inputCursor == undefined
+      this.inputCursor = undefined
     }
   }
 }

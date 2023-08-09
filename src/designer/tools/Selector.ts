@@ -1,5 +1,7 @@
 import Coordinate, { CursorDetail } from '../Coordinate'
 import Canvas, { Mode, Region } from '../Canvas'
+import { Shape } from 'two.js/src/shape'
+import { onKey } from '../util'
 
 class Selector {
   private canvas: Canvas
@@ -10,12 +12,21 @@ class Selector {
 
   private selectedRegion?: Region
 
+  private selected?: Shape
+
   constructor(canvas: Canvas) {
     this.canvas = canvas
     this.coordinate = canvas.coordinate
     this.canvas.addEventListener('cursorup', this.onCursorUp)
     this.canvas.addEventListener('cursordown', this.onCursorDown)
     this.canvas.addEventListener('cursormove', this.onCursorMove)
+    this.canvas.addEventListener(
+      'canvaskeydown',
+      onKey({
+        Backsapce: this.removeSelected,
+        Delete: this.removeSelected,
+      })
+    )
   }
 
   onCursorMove = (e: CustomEvent<CursorDetail>) => {
@@ -31,6 +42,7 @@ class Selector {
       )
     }
   }
+
   onCursorUp = (e: CustomEvent<CursorDetail>) => {
     if (this.canvas.mode != Mode.Selector) {
       return
@@ -42,7 +54,7 @@ class Selector {
 
     let { row, col } = e.detail
 
-    console.log(this.canvas.cellMgr.getShape(row, col))
+    this.selected = this.canvas.cellMgr.getShape(row, col)
   }
   onCursorDown = (e: CustomEvent<CursorDetail>) => {
     if (this.canvas.mode != Mode.Selector) {
@@ -56,6 +68,12 @@ class Selector {
     this.coordinate.showPointer = false
     this.isSelecting = true
     this.createSelectedRegion(e.detail.clientX, e.detail.clientY)
+  }
+
+  removeSelected = () => {
+    // FIXME cellmgr remove
+
+    this.selected?.remove()
   }
 
   private clearSelectedRegion = () => {

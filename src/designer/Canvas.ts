@@ -77,8 +77,8 @@ class Canvas {
   }
 
   set mode(mode: Mode) {
-    this._mode = mode
     this.ctx.dispatchEvent('modechange', this.mode, mode)
+    this._mode = mode
   }
 
   get mode() {

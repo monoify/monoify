@@ -5,6 +5,7 @@ export const onKey = (
   fallback?: Function
 ): Function => {
   return (e: CustomEvent<KeyboardDetail>) => {
+    console.log(e)
     const fn = keymap[e.detail.code] || fallback
     fn && fn(e)
   }

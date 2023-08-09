@@ -85,11 +85,6 @@ export class Cell {
       }
 
       if (this.border == CellBorder.Horizontal) {
-        console.log(
-          `row: ${this.row}, col: ${this.col}, state: ${
-            Direction[this.state]
-          }, anchor: ${Direction[anchor]} `
-        )
         if (this.state == Direction.None) {
           if (anchor == Direction.None) {
             this.border = CellBorder.VerticalHorizontal
@@ -239,10 +234,14 @@ export default class CellManager {
   }
 
   getShape = (row: number, col: number): Shape | undefined => {
-    console.log(this._cells)
     let cell = this._cells[`${row}_${col}`]
-    // FIXME character first, then last shape
-    return cell ? cell[cell.length - 1] : undefined
+
+    if (cell) {
+      let ch = cell.find((shape) => shape.id.startsWith('ch'))
+      return ch ? ch : cell[cell.length - 1]
+    }
+
+    return undefined
   }
 
   addLines(line: Line | Line[]) {
@@ -279,8 +278,15 @@ export default class CellManager {
 
   remove(obj: Character) {
     let index = this.chars.findIndex((ch) => ch.id == obj.id)
+    let cellIndex = this._cells[`${obj.cell.row}_${obj.cell.col}`]?.findIndex(
+      (shape) => shape.id == obj.id
+    )
     if (index >= 0) {
       this.chars.splice(index, 1)
+    }
+
+    if (cellIndex >= 0) {
+      this._cells[`${obj.cell.row}_${obj.cell.col}`].splice(cellIndex, 1)
     }
   }
 
