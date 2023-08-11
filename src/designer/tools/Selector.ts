@@ -51,10 +51,6 @@ class Selector {
     this.coordinate.showPointer = true
     this.isSelecting = false
     this.clearSelectedRegion()
-
-    let { row, col } = e.detail
-
-    this.selected = this.canvas.cellMgr.getShape(row, col)
   }
   onCursorDown = (e: CustomEvent<CursorDetail>) => {
     if (this.canvas.mode != Mode.Selector) {
