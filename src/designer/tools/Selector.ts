@@ -30,7 +30,7 @@ class Selector {
   }
 
   onCursorMove = (e: CustomEvent<CursorDetail>) => {
-    if (this.canvas.mode != Mode.Selector) {
+    if (this.canvas.mode != Mode.Select) {
       return
     }
 
@@ -44,7 +44,7 @@ class Selector {
   }
 
   onCursorUp = (e: CustomEvent<CursorDetail>) => {
-    if (this.canvas.mode != Mode.Selector) {
+    if (this.canvas.mode != Mode.Select) {
       return
     }
 
@@ -53,7 +53,7 @@ class Selector {
     this.clearSelectedRegion()
   }
   onCursorDown = (e: CustomEvent<CursorDetail>) => {
-    if (this.canvas.mode != Mode.Selector) {
+    if (this.canvas.mode != Mode.Select) {
       return
     }
 
