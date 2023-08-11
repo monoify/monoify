@@ -30,7 +30,7 @@ class Canvas {
 
   readonly dispatchEvent: Function
 
-  _mode: Mode = Mode.Selector
+  _mode: Mode = Mode.Select
 
   readonly el: HTMLElement
 
@@ -47,10 +47,19 @@ class Canvas {
 
     this.ctx = new Two({
       type: Two.Types.canvas,
-      fullscreen: true,
+      fullscreen: false,
       autostart: true,
       fitted: true,
     }).appendTo(parent)
+
+    // const { width, height } = this.el.getBoundingClientRect()
+    // this.ctx.width = width
+    // this.ctx.height = height
+    window.addEventListener('resize', () => {
+      const { width, height } = this.el.getBoundingClientRect()
+      this.ctx.width = width
+      this.ctx.height = height
+    })
 
     this.grids = this.ctx.makeGroup()
     this.shapes = this.ctx.makeGroup()
@@ -76,6 +85,9 @@ class Canvas {
     })
   }
 
+  get boudingClientRect() {
+    return this.el.getBoundingClientRect()
+  }
   set mode(mode: Mode) {
     this.ctx.dispatchEvent('modechange', this.mode, mode)
     this._mode = mode
@@ -118,10 +130,11 @@ class Canvas {
 }
 
 export enum Mode {
-  Selector = 0,
+  Select = 0,
   Line = 1,
-  Box = 2,
+  Rect = 2,
   Text = 3,
+  Move = 4,
 }
 
 export interface PointerEventHandler {

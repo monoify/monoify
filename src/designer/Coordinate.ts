@@ -40,7 +40,7 @@ export default class Coordinate {
       this.updateCursor('cursordown', e)
     )
 
-    this.canvas.ctx.bind('resize', this.initGrids)
+    window.addEventListener('resize', this.initGrids)
 
     // style cursor
     const cursorCell: CellPosition = this.getCellByClientPostion(0, 0)
@@ -105,9 +105,10 @@ export default class Coordinate {
     if (this.canvas.grids.children) {
       this.canvas.grids.children.splice(0, this.canvas.grids.children?.length)
     }
+    let { right, bottom } = this.canvas.boudingClientRect
 
-    let { x: sfw, y: osy } = this.zui.clientToSurface(this.canvas.ctx.width, 0)
-    let { x: osx, y: sfh } = this.zui.clientToSurface(0, this.canvas.ctx.height)
+    let { x: sfw, y: osy } = this.zui.clientToSurface(right, 0)
+    let { x: osx, y: sfh } = this.zui.clientToSurface(0, bottom)
 
     let oc = this.getCellByClientPostion(0, 0) // origin cell
 

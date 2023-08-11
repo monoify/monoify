@@ -1,14 +1,6 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
-
-import Canvas, { Mode } from '@/designer/Canvas'
-
-const canvasRef = ref<HTMLCanvasElement | null>(null)
-const show = ref<boolean>(false)
-const row = ref<number>(1)
-const col = ref<number>(1)
-const output = ref<string>('')
-
+import Canvas, { Mode } from './designer/Canvas'
 const gitInfo = {
   commit: __GIT_COMMIT_HASH__,
   lastMod: __GIT_COMMIT_DATE__,
@@ -17,71 +9,128 @@ const gitInfo = {
   link: 'https://github.com/monoify/monoify/commit/' + __GIT_COMMIT_HASH__,
 }
 
+let editor = ref<HTMLElement | null>(null)
 let canvas: Canvas
-let state = reactive<any>({
-  mode: Mode.Selector,
+const show = ref<boolean>(false)
+const mode = ref<Mode>(Mode.Line)
+const text = reactive<any>({
+  content: '',
+  row: 24,
+  col: 80,
 })
 
 onMounted(() => {
-  canvas = new Canvas(document.body)
+  if (editor.value) {
+    canvas = new Canvas(editor.value)
+  }
 })
 
-const switchMode = (mode: Mode) => {
-  state.mode = mode
-  canvas.mode = mode
+const setMode = (_mode: Mode) => {
+  mode.value = _mode
+  canvas.mode = _mode
 }
 
-const dumpText = () => {
+const exportText = () => {
   let dump = canvas.state.renderText()
-  row.value = Math.max(dump.row, 30)
-  col.value = Math.max(dump.col, 80)
-  output.value = dump.text
+  text.row = Math.max(dump.row, 30)
+  text.col = Math.max(dump.col, 80)
+  text.content = dump.text
   show.value = true
 }
 </script>
-
 <template>
-  <div class="text" v-if="show">
-    <span
-      @click="show = false"
-      style="position: absolute; right: 10px; top: 7px; font-size: 20px; cursor: pointer;"
-      >×</span
-    >
-    <div style="padding-top: 30px; padding-left: 10px; padding-right: 10px;">
-      <textarea :rows="row" :cols="col" spellcheck="false"
-        >{{ output }}
-      </textarea>
+  <header class="m-nav">
+    <div class="m-brand">
+      <span class="m-brand-name">Monoify</span>
+    </div>
+  </header>
+  <div class="m-menu-bar"></div>
+  <div class="m-workspace">
+    <div class="m-toolbox">
+      <div
+        class="m-tool-item"
+        @click="setMode(Mode.Line)"
+        :class="{ active: mode == Mode.Line }">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          height="1em"
+          viewBox="0 0 640 512">
+          <!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+          <path
+            d="M5.1 9.2C13.3-1.2 28.4-3.1 38.8 5.1l592 464c10.4 8.2 12.3 23.3 4.1 33.7s-23.3 12.3-33.7 4.1L9.2 42.9C-1.2 34.7-3.1 19.6 5.1 9.2z" />
+        </svg>
+      </div>
+      <div
+        class="m-tool-item"
+        @click="setMode(Mode.Rect)"
+        :class="{ active: mode == Mode.Rect }">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          height="1em"
+          viewBox="0 0 512 512">
+          <!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+          <path
+            d="M464 48V464H48V48H464zM48 0H0V48 464v48H48 464h48V464 48 0H464 48z" />
+        </svg>
+      </div>
+      <div
+        class="m-tool-item"
+        @click="setMode(Mode.Text)"
+        :class="{ active: mode == Mode.Text }">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          height="1em"
+          viewBox="0 0 448 512">
+          <!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+          <path
+            d="M254 52.8C249.3 40.3 237.3 32 224 32s-25.3 8.3-30 20.8L57.8 416H32c-17.7 0-32 14.3-32 32s14.3 32 32 32h96c17.7 0 32-14.3 32-32s-14.3-32-32-32h-1.8l18-48H303.8l18 48H320c-17.7 0-32 14.3-32 32s14.3 32 32 32h96c17.7 0 32-14.3 32-32s-14.3-32-32-32H390.2L254 52.8zM279.8 304H168.2L224 155.1 279.8 304z" />
+        </svg>
+      </div>
+      <div
+        class="m-tool-item"
+        @click="setMode(Mode.Move)"
+        :class="{ active: mode == Mode.Move }">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          height="1em"
+          viewBox="0 0 512 512">
+          <!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+          <path
+            d="M256 0c-25.3 0-47.2 14.7-57.6 36c-7-2.6-14.5-4-22.4-4c-35.3 0-64 28.7-64 64V261.5l-2.7-2.7c-25-25-65.5-25-90.5 0s-25 65.5 0 90.5L106.5 437c48 48 113.1 75 181 75H296h8c1.5 0 3-.1 4.5-.4c91.7-6.2 165-79.4 171.1-171.1c.3-1.5 .4-3 .4-4.5V160c0-35.3-28.7-64-64-64c-5.5 0-10.9 .7-16 2V96c0-35.3-28.7-64-64-64c-7.9 0-15.4 1.4-22.4 4C303.2 14.7 281.3 0 256 0zM240 96.1c0 0 0-.1 0-.1V64c0-8.8 7.2-16 16-16s16 7.2 16 16V95.9c0 0 0 .1 0 .1V232c0 13.3 10.7 24 24 24s24-10.7 24-24V96c0 0 0 0 0-.1c0-8.8 7.2-16 16-16s16 7.2 16 16v55.9c0 0 0 .1 0 .1v80c0 13.3 10.7 24 24 24s24-10.7 24-24V160.1c0 0 0-.1 0-.1c0-8.8 7.2-16 16-16s16 7.2 16 16V332.9c-.1 .6-.1 1.3-.2 1.9c-3.4 69.7-59.3 125.6-129 129c-.6 0-1.3 .1-1.9 .2H296h-8.5c-55.2 0-108.1-21.9-147.1-60.9L52.7 315.3c-6.2-6.2-6.2-16.4 0-22.6s16.4-6.2 22.6 0L119 336.4c6.9 6.9 17.2 8.9 26.2 5.2s14.8-12.5 14.8-22.2V96c0-8.8 7.2-16 16-16c8.8 0 16 7.1 16 15.9V232c0 13.3 10.7 24 24 24s24-10.7 24-24V96.1z" />
+        </svg>
+      </div>
+
+      <div
+        class="m-tool-item"
+        @click="setMode(Mode.Select)"
+        :class="{ active: mode == Mode.Select }">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          height="1em"
+          viewBox="0 0 448 512">
+          <!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+          <path
+            d="M368 80h32v32H368V80zM352 32c-17.7 0-32 14.3-32 32H128c0-17.7-14.3-32-32-32H32C14.3 32 0 46.3 0 64v64c0 17.7 14.3 32 32 32V352c-17.7 0-32 14.3-32 32v64c0 17.7 14.3 32 32 32H96c17.7 0 32-14.3 32-32H320c0 17.7 14.3 32 32 32h64c17.7 0 32-14.3 32-32V384c0-17.7-14.3-32-32-32V160c17.7 0 32-14.3 32-32V64c0-17.7-14.3-32-32-32H352zM96 160c17.7 0 32-14.3 32-32H320c0 17.7 14.3 32 32 32V352c-17.7 0-32 14.3-32 32H128c0-17.7-14.3-32-32-32V160zM48 400H80v32H48V400zm320 32V400h32v32H368zM48 112V80H80v32H48z" />
+        </svg>
+      </div>
+
+      <hr />
+      <div class="m-tool-item" @click="exportText">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          height="1em"
+          viewBox="0 0 576 512">
+          <!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+          <path
+            d="M400 255.4V240 208c0-8.8-7.2-16-16-16H352 336 289.5c-50.9 0-93.9 33.5-108.3 79.6c-3.3-9.4-5.2-19.8-5.2-31.6c0-61.9 50.1-112 112-112h48 16 32c8.8 0 16-7.2 16-16V80 64.6L506 160 400 255.4zM336 240h16v48c0 17.7 14.3 32 32 32h3.7c7.9 0 15.5-2.9 21.4-8.2l139-125.1c7.6-6.8 11.9-16.5 11.9-26.7s-4.3-19.9-11.9-26.7L409.9 8.9C403.5 3.2 395.3 0 386.7 0C367.5 0 352 15.5 352 34.7V80H336 304 288c-88.4 0-160 71.6-160 160c0 60.4 34.6 99.1 63.9 120.9c5.9 4.4 11.5 8.1 16.7 11.2c4.4 2.7 8.5 4.9 11.9 6.6c3.4 1.7 6.2 3 8.2 3.9c2.2 1 4.6 1.4 7.1 1.4h2.5c9.8 0 17.8-8 17.8-17.8c0-7.8-5.3-14.7-11.6-19.5l0 0c-.4-.3-.7-.5-1.1-.8c-1.7-1.1-3.4-2.5-5-4.1c-.8-.8-1.7-1.6-2.5-2.6s-1.6-1.9-2.4-2.9c-1.8-2.5-3.5-5.3-5-8.5c-2.6-6-4.3-13.3-4.3-22.4c0-36.1 29.3-65.5 65.5-65.5H304h32zM72 32C32.2 32 0 64.2 0 104V440c0 39.8 32.2 72 72 72H408c39.8 0 72-32.2 72-72V376c0-13.3-10.7-24-24-24s-24 10.7-24 24v64c0 13.3-10.7 24-24 24H72c-13.3 0-24-10.7-24-24V104c0-13.3 10.7-24 24-24h64c13.3 0 24-10.7 24-24s-10.7-24-24-24H72z" />
+        </svg>
+      </div>
+    </div>
+    <div class="m-editro-wrapper">
+      <div class="m-editor" ref="editor"></div>
     </div>
   </div>
-  <div class="toolbar">
-    <span
-      class="toolbar-item"
-      @click="switchMode(Mode.Selector)"
-      :class="{ active: state.mode == Mode.Selector }"
-      >Selector</span
-    >
-    <span
-      class="toolbar-item"
-      @click="switchMode(Mode.Box)"
-      :class="{ active: state.mode == Mode.Box }"
-      >Rectangle</span
-    >
-    <span
-      class="toolbar-item"
-      @click="switchMode(Mode.Line)"
-      :class="{ active: state.mode == Mode.Line }"
-      >Line</span
-    >
-    <span
-      class="toolbar-item"
-      @click="switchMode(Mode.Text)"
-      :class="{ active: state.mode == Mode.Text }"
-      >Text</span
-    >
-    <span class="toolbar-item">Clear</span>
-    <span class="toolbar-item" @click="dumpText">Export</span>
-  </div>
-  <div ref="canvasRef" class="cvs"></div>
+
   <div class="release">
     <span class="git-info-title">
       This tool is currently under development
@@ -94,31 +143,90 @@ const dumpText = () => {
     <span class="git-info-text">last modfied: {{ gitInfo.lastMod }}</span>
     <span class="git-info-text">{{ gitInfo.message }}</span>
   </div>
+
+  <div class="text-dialog" v-if="show">
+    <span
+      @click="show = false"
+      style="
+        position: absolute;
+        right: 10px;
+        top: 7px;
+        font-size: 20px;
+        cursor: pointer;
+      "
+      >×</span
+    >
+    <div style="padding-top: 30px; padding-left: 10px; padding-right: 10px">
+      <pre><code>{{ text.content }}</code></pre>
+    </div>
+  </div>
 </template>
 
-<style scoped>
-.toolbar {
-  position: absolute;
-  top: 25px;
-  left: 25px;
+<style>
+.m-nav {
+  width: 100%;
+  height: 40px;
+}
+
+.m-menu-bar {
+  width: 100%;
+  height: 20px;
+  border-bottom: 1px solid #dedede;
+}
+
+.m-brand {
+  padding-left: 1.5rem;
+}
+
+.m-workspace {
   display: flex;
-  background-color: #fff;
-  box-shadow: 2px 2px 9px 0px #212020d6;
-  padding: 20px;
-  width: 550px;
-  z-index: 100;
+  flex: 1;
 }
 
-.toolbar-item {
-  border: solid 1px black;
+.m-toolbox {
+  min-width: 60px;
+  max-width: 60px;
+  border-right: 1px solid #dedede;
+  background-color: #f8f8f8;
+  display: flex;
+  flex-direction: column;
+}
+
+.m-tool-item {
+  padding: 10px;
   cursor: pointer;
-  padding: 3px 10px;
-  margin: 7px;
+  text-align: center;
 }
 
-.active {
-  background-color: green;
-  font-weight: 700;
+.m-brand-name {
+  font-size: 2.7rem;
+}
+.m-editro-wrapper {
+  flex: 1;
+}
+.m-editor {
+  width: 100%;
+  height: 100%;
+}
+
+.m-tool-item svg {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.125em;
+  fill: #36454f;
+}
+
+.m-toolbox hr {
+  margin: 0;
+  border-top: 0.1rem solid #dddddd;
+}
+
+.m-tool-item:hover {
+  background-color: #e9e9e9;
+}
+
+.m-tool-item.active {
+  background-color: #dae9f5;
 }
 
 .release {
@@ -128,13 +236,14 @@ const dumpText = () => {
   display: flex;
   flex-direction: column;
   z-index: 101;
-  padding: 15px;
+  padding: 8px;
   background: #fff;
+  box-shadow: 1px 1px 3px 0px rgb(161, 159, 157);
 }
 .release .git-info-title {
   font-weight: 700;
   font-size: 16px;
-  color: red;
+  color: #ee3280;
   margin: 10px 0;
 }
 
@@ -143,12 +252,32 @@ const dumpText = () => {
   margin: 3px 0;
 }
 
-.text {
+.text-dialog {
   position: absolute;
   z-index: 105;
   background: #fff;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  font-family: 'monospace';
+  box-shadow: 6px -3px 11px 2px #dedede;
+}
+
+.text-dialog pre {
+  border-left: none;
+  font-family: 'FiraMono';
+  margin-bottom: 10px;
+  overflow: auto;
+  width: auto;
+  padding: 5px;
+  background-color: #eee;
+}
+
+.text-dialog pre code {
+  font-family: 'FiraMono';
+  line-height: 1;
+  background:none;
+  min-width: 260px;
+  min-height: 120px;
 }
 </style>

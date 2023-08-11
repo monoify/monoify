@@ -66,7 +66,7 @@ export default class RectTool {
   // }
   //
   onCursorDown = (e: CustomEvent<CursorDetail>) => {
-    if (this.canvas.mode != Mode.Box) {
+    if (this.canvas.mode != Mode.Rect) {
       return
     }
 
@@ -101,7 +101,7 @@ export default class RectTool {
   }
 
   onCursorMove = (e: CustomEvent<CursorDetail>) => {
-    if (this.canvas.mode != Mode.Box) {
+    if (this.canvas.mode != Mode.Rect) {
       return
     }
     if (this.guideLines) {

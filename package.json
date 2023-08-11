@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "milligram": "^1.4.1",
     "normalize.css": "^8.0.1",
     "two.js": "^0.8.10",
     "vue": "^3.3.4"

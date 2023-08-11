@@ -1,8 +1,6 @@
-body {
-  width: 100%;
-  height: 100vh;
-  font-family: 'FiraMono', "monospace";
-}
+/* * { */
+/*   box-sizing: border-box; */
+/* } */
 
 @font-face {
   font-family: 'FiraMono';
@@ -12,5 +10,19 @@ body {
   src: local(''),
        url('assets/FiraMono-Regular.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
        url('assets/FiraMono-Regular.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+body {
+  width: 100%;
+  height: 100vh;
+  font-family: 'FiraMono', 'monospace';
+  padding: 0px;
+  margin: 0px;
+}
+
+#app {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
