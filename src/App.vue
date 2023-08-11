@@ -32,10 +32,10 @@ const switchMode = (mode: Mode) => {
 }
 
 const dumpText = () => {
-  let dump = canvas.cellMgr.dumpText()
+  let dump = canvas.state.renderText()
   row.value = Math.max(dump.row, 30)
   col.value = Math.max(dump.col, 80)
-  output.value = dump.content
+  output.value = dump.text
   show.value = true
 }
 </script>

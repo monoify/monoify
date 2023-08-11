@@ -1,5 +1,5 @@
 import { Rectangle } from 'two.js/src/shapes/rectangle'
-import { CellPosition } from '../types'
+import { CellPosition } from '../Coordinate'
 
 export default class Cursor extends Rectangle {
 
@@ -11,7 +11,7 @@ export default class Cursor extends Rectangle {
     height: number,
     fill: string,
   ) {
-    super(cell.scx, cell.scy, width, height)
+    super(cell.center[0], cell.center[1], width, height)
     this.fill = fill
     this._cell = cell
     this.noStroke()
@@ -23,7 +23,7 @@ export default class Cursor extends Rectangle {
 
   set cell(cell: CellPosition) {
     this._cell = cell
-    this.position.x = cell.scx
-    this.position.y = cell.scy
+    this.position.x = cell.center[0]
+    this.position.y = cell.center[1]
   }
 }

@@ -3,8 +3,9 @@ import { Rectangle } from 'two.js/src/shapes/rectangle'
 import Coordinate from './Coordinate'
 import { RectTool, Selector, LineTool, TextTool } from './tools'
 import { KeyboardDetail } from './types'
-import CellManager from './CellManager'
 import { Group } from 'two.js/src/group'
+import StateManager from './StateManager'
+import CellSpec from './CellSpec'
 
 class Canvas {
   readonly ctx: Two
@@ -12,6 +13,8 @@ class Canvas {
   cellHeight: number = 42
 
   cellWidth: number = 20
+
+  readonly cellSpec: CellSpec = new CellSpec(21, 43, 0.5)
 
   readonly coordinate: Coordinate
 
@@ -31,15 +34,13 @@ class Canvas {
 
   readonly el: HTMLElement
 
-  readonly borders: Group
-
-  readonly chars: Group
+  readonly shapes: Group
 
   readonly grids: Group
 
   readonly cursor: Group
 
-  cellMgr: CellManager
+  readonly state: StateManager
 
   constructor(parent: HTMLElement) {
     this.el = parent
@@ -52,16 +53,15 @@ class Canvas {
     }).appendTo(parent)
 
     this.grids = this.ctx.makeGroup()
-    this.borders = this.ctx.makeGroup()
-    this.chars = this.ctx.makeGroup()
+    this.shapes = this.ctx.makeGroup()
     this.cursor = this.ctx.makeGroup()
 
-    this.cellMgr = new CellManager(this)
+    this.state = new StateManager(this, this.cellSpec)
 
     const { domElement: el } = this.ctx.renderer
     this.addEventListener = el.addEventListener.bind(el)
     this.dispatchEvent = el.dispatchEvent.bind(el)
-    this.coordinate = new Coordinate(this)
+    this.coordinate = new Coordinate(this, this.cellSpec)
     this.selector = new Selector(this)
     this.box = new RectTool(this)
     this.line = new LineTool(this)

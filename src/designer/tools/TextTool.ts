@@ -1,9 +1,7 @@
 import Canvas, { Mode } from '../Canvas'
 import Cursor from '../shapes/Cursor'
-import Coordinate from '../Coordinate'
-import { CursorDetail } from '../Coordinate'
-import { CellPosition, KeyboardDetail } from '../types'
-import Character from '../shapes/Character'
+import Coordinate, { CellPosition, CursorDetail } from '../Coordinate'
+import { KeyboardDetail } from '../types'
 
 export default class TextTool {
   static Move: any = {
@@ -38,11 +36,11 @@ export default class TextTool {
     if (this.canvas.mode == Mode.Text) {
       let { key } = e.detail
       if (this.chars.indexOf(key) >= 0) {
-        this.addChar(key)
+        this.setText(key)
       } else if (key == 'Backspace') {
-        this.removeChar(true)
+        this.deleteText(true)
       } else if (key == 'Delete') {
-        this.removeChar(false)
+        this.deleteText(false)
       } else if (key.indexOf('Arrow') >= 0) {
         this.moveCursor(TextTool.Move[key])
       }
@@ -59,51 +57,23 @@ export default class TextTool {
     }
   }
 
-  removeChar = (prev: boolean) => {
-    if (this.inputCursor) {
-      const { row, col } = this.inputCursor.cell
-      if (prev) {
-        this.inputCursor.cell = this.canvas.coordinate.getCellPosition(
-          row,
-          col - 1
-        )
+  deleteText = (prev: boolean) => {
+    if(this.inputCursor) {
+      if(prev) {
+        this.moveCursor([0,-1])
       }
-      this.removeAt(row, prev ? col - 1 : col)
+      this.removeAt(this.inputCursor.cell)
     }
   }
 
-  removeAt(row: number, col: number) {
-    let char = this.canvas.chars.getById(`ch_${row}_${col}`)
-    if (char) {
-      this.canvas.cellMgr.remove(char as Character)
-      char.remove()
-    }
+  removeAt(position: CellPosition) {
+    this.canvas.state.deleteText(position)
   }
 
-  addChar = (value: string) => {
+  setText = (value: string) => {
     if (this.inputCursor) {
-      const { col, row } = this.inputCursor?.cell
-      const { cellWidth, cellHeight } = this.canvas.coordinate
-      let char: Character = this.canvas.chars.getById(
-        Character.getId(row, col)
-      ) as Character
-
-      if (char) {
-        char.value = value
-      } else {
-        let ch = new Character(
-          this.inputCursor.cell,
-          value,
-          cellWidth,
-          cellHeight
-        )
-        this.canvas.chars.add(ch)
-        this.inputCursor.cell = this.canvas.coordinate.getCellPosition(
-          row,
-          col + 1
-        )
-        this.canvas.cellMgr.addCharacter(ch)
-      }
+      this.canvas.state.setText(this.inputCursor.cell, value)
+      this.moveCursor([0, 1])
     }
   }
 
@@ -112,14 +82,11 @@ export default class TextTool {
       return
     }
 
-    const { col, row, x: scx, y: scy } = e.detail
-    const cell: CellPosition = { col, row, scx, scy }
-
     if (!this.inputCursor) {
       this.inputCursor = Coordinate.makeCursor(
-        cell,
-        this.canvas.coordinate.cellInnerWidth,
-        this.canvas.coordinate.cellInnerHeight,
+        e.detail,
+        this.canvas.cellSpec.width,
+        this.canvas.cellSpec.height,
         this.cursorBg[0]
       )
       this.inputCursor.noStroke()
@@ -127,7 +94,7 @@ export default class TextTool {
       this._blinkTimer = setInterval(this.blink, 750)
     }
     this.inputCursor.fill = this.cursorBg[0]
-    this.inputCursor.cell = cell
+    this.inputCursor.cell = e.detail
   }
 
   blink = () => {

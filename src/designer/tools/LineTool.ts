@@ -1,8 +1,10 @@
 import Canvas, { Mode } from '../Canvas'
-import { CursorDetail } from '../Coordinate'
-import { Line } from '../shapes'
-import { CellPosition } from '../types'
+import Coordinate from '../Coordinate'
+import { CellPosition, CellVector, CursorDetail } from '../Coordinate'
 import { onKey } from '../util'
+import { Anchor } from 'two.js/src/anchor'
+import { Path } from 'two.js/src/path'
+import { Commands } from 'two.js/src/utils/path-commands'
 
 export default class LineTool {
   private canvas
@@ -11,7 +13,9 @@ export default class LineTool {
 
   private isDrawing: boolean = false
 
-  private line?: any // FIXME: wait for upstream upgrade
+  private guideLine?: GuideLine
+
+  private start?: CellPosition
 
   constructor(canvas: Canvas) {
     this.canvas = canvas
@@ -28,31 +32,6 @@ export default class LineTool {
     )
   }
 
-  static isValid(line: Line): boolean {
-    if (!line) {
-      return false
-    }
-    let { scx: bx, scy: by } = line.begin
-    let { scx: ex, scy: ey } = line.end
-
-    return (bx != ex && by == ey) || (by != ey && bx == ex)
-  }
-
-  makeLine = (start: CursorDetail) => {
-    let p: CellPosition = {
-      row: start.row,
-      col: start.col,
-      scx: start.x,
-      scy: start.y,
-    }
-    this.line = new Line(p, p)
-    this.line.dashes = [5, 2]
-    this.line.stroke = '#999'
-    this.line.linewidth = 1
-
-    this.canvas.borders.add(this.line)
-  }
-
   onCursorDown = (e: CustomEvent<CursorDetail>) => {
     if (this.canvas.mode != Mode.Line) {
       return
@@ -62,65 +41,69 @@ export default class LineTool {
       return
     }
 
-
-    if (this.line) {
-      if (LineTool.isValid(this.line)) {
-        this.confirm()
-      } else {
-        this.concel()
-      }
+    if (!this.guideLine) {
+      // drawing
+      this.guideLine = new GuideLine(e.detail)
+      this.canvas.cursor.add(this.guideLine)
     } else {
-      this.isDrawing = true
-      this.makeLine(e.detail)
+      this.confirm()
     }
   }
 
   confirm = () => {
-    if (this.line) {
-      this.line.stroke = '#000'
-      this.line.dashes = [0, 0]
-      this.isDrawing = false
-
-      this.canvas.cellMgr.addLines(this.line)
-      this.line = undefined
+    if (this.guideLine) {
+      let measure = this.guideLine.measure
+      if (measure) {
+        this.canvas.state.addLine(this.guideLine.start, measure)
+      }
+      this.concel()
     }
   }
 
   concel = () => {
-    if (this.line) {
-      this.line.remove()
-      this.line = undefined
-      this.isDrawing = false
-    }
-  }
-
-  validate = (): boolean => {
-    if (!this.line) {
-      return false
-    }
-
-    return false
+    this.guideLine?.remove()
+    this.guideLine = undefined
   }
 
   onCursorMove = (e: CustomEvent<CursorDetail>) => {
     if (this.canvas.mode != Mode.Line) {
       return
     }
-
-    if (this.line && this.isDrawing) {
-      let { row, col, x: scx, y: scy } = e.detail
-
-      let p: CellPosition = {
-        row,
-        col,
-        scx,
-        scy,
-      }
-      // this.line.right.x = scx
-      // this.line.right.y = scy
-
-      this.line.end = p
+    if (this.guideLine) {
+      this.guideLine.end = e.detail
     }
+  }
+}
+
+class GuideLine extends Path {
+  private _start: CellPosition
+  private _end: CellPosition
+  constructor(start: CellPosition) {
+    super([
+      new Anchor(start.center[0], start.center[1]),
+      new Anchor(start.center[0], start.center[1]),
+    ])
+    this._start = start
+    this._end = start
+    this.vertices[0].command = Commands.move
+    this.vertices[1].command = Commands.line
+    this.stroke = '#999'
+    this.dashes = [5, 2]
+    this.linewidth = 1
+  }
+
+  set end(end: CellPosition) {
+    this._end = end
+    this.vertices[1].x = end.center[0]
+    this.vertices[1].y = end.center[1]
+  }
+
+  get start() {
+    return this._start
+  }
+
+  get measure(): CellVector | undefined {
+    return Coordinate.Measure(this._end, this._start)
   }
 }
 
