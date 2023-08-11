@@ -249,6 +249,7 @@ export class Cell extends Group {
       path.vertices[1].command = Commands.line
       path.vertices[2].command = Commands.move
       path.vertices[3].command = Commands.line
+      path.noFill()
       return path
     }
 
@@ -258,6 +259,7 @@ export class Cell extends Group {
       path.vertices[1].command = Commands.line
       path.vertices[2].command = Commands.move
       path.vertices[3].command = Commands.line
+      path.noFill()
       return path
     }
 
@@ -267,6 +269,7 @@ export class Cell extends Group {
       path.vertices[1].command = Commands.line
       path.vertices[2].command = Commands.move
       path.vertices[3].command = Commands.line
+      path.noFill()
       return path
     }
 
@@ -276,6 +279,7 @@ export class Cell extends Group {
       path.vertices[1].command = Commands.line
       path.vertices[2].command = Commands.move
       path.vertices[3].command = Commands.line
+      path.noFill()
       return path
     }
 
@@ -284,6 +288,7 @@ export class Cell extends Group {
       path.vertices[0].command = Commands.move
       path.vertices[1].command = Commands.line
       path.vertices[2].command = Commands.line
+      path.noFill()
       return path
     }
 
@@ -292,6 +297,7 @@ export class Cell extends Group {
       path.vertices[0].command = Commands.move
       path.vertices[1].command = Commands.line
       path.vertices[2].command = Commands.line
+      path.noFill()
       return path
     }
 
@@ -300,6 +306,7 @@ export class Cell extends Group {
       path.vertices[0].command = Commands.move
       path.vertices[1].command = Commands.line
       path.vertices[2].command = Commands.line
+      path.noFill()
       return path
     }
 
@@ -308,6 +315,7 @@ export class Cell extends Group {
       path.vertices[0].command = Commands.move
       path.vertices[1].command = Commands.line
       path.vertices[2].command = Commands.line
+      path.noFill()
       return path
     }
 
@@ -323,6 +331,7 @@ export class Cell extends Group {
       path.vertices[2].command = Commands.move
       path.vertices[3].command = Commands.line
       path.vertices[4].command = Commands.line
+      path.noFill()
       return path
     }
   }
