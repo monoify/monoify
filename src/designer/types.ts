@@ -6,3 +6,13 @@ export type KeyboardDetail = {
 }
 
 export type Charset = { [key in CellValueType]: string }
+
+export type CellRange = {
+  row: [number, number],
+  col: [number, number]
+}
+
+export type CoordinateRange = {
+  x: [number, number],
+  y: [number ,number],
+}

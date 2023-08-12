@@ -7,10 +7,11 @@ import { Anchor } from 'two.js/src/anchor'
 import { Commands } from 'two.js/src/utils/path-commands'
 import Canvas from './Canvas'
 import CellSpec from './CellSpec'
-import { Axis, CellPosition, CellVector } from './Coordinate'
+import { CellPosition, CellVector } from './Coordinate'
 import CellLine from './shapes/CellLine'
 import CellRect from './shapes/CellRect'
-import { Charset } from './types'
+import { Charset, CellRange as CellRange, CoordinateRange } from './types'
+import CellShape from './shapes/CellShape'
 
 export enum Direction {
   UP = 1,
@@ -81,6 +82,17 @@ export default class StateManager {
     this.spec = spec
   }
 
+  findShapes(range: CoordinateRange): CellShape[] {
+    let shapes = []
+    const children = this.canvas.shapes.children
+    for (let i = 0; i < children.length; i++) {
+      if (children[i].inRange(range)) {
+        shapes.push(children[i])
+      }
+    }
+    return shapes
+  }
+
   setText(position: CellPosition, text: string) {
     let { row, col } = position
     let cell = this.cell(row, col)
@@ -94,8 +106,8 @@ export default class StateManager {
     cell.deleteText()
   }
 
-  addLine(start: CellPosition, measure: CellVector) {
-    this.canvas.shapes.add(new CellLine(start, measure, this))
+  addLine(start: CellPosition, end: CellPosition, measure: CellVector) {
+    this.canvas.shapes.add(new CellLine(start, end, measure, this))
   }
 
   addRect(
@@ -158,7 +170,8 @@ export default class StateManager {
   }
 }
 
-export class Cell extends Group {
+export class Cell extends Group implements CellShape {
+  private _selected: boolean
   readonly row: number
   readonly col: number
   readonly _center: [number, number]
@@ -184,6 +197,48 @@ export class Cell extends Group {
     this.bottom = [centerX, centerY + spec.height / 2]
     this.left = [centerX - spec.width / 2, centerY]
     this.right = [centerX + spec.width / 2, centerY]
+    this._selected = false
+  }
+  getShapeCenter(): { x: number; y: number } {
+    return { x: this._center[0], y: this._center[1] }
+  }
+
+  inRange(range: CoordinateRange): boolean {
+    let { x, y } = this.getShapeCenter()
+    return (
+      x >= range.x[0] && x <= range.x[1] && y >= range.y[0] && y <= range.y[1]
+    )
+  }
+
+  get selected(): boolean {
+    return this._selected
+  }
+
+  set selected(selected: boolean) {
+    if (selected) {
+      for (let i = 0; i < this.children.length; i++) {
+        if (this.children[i] instanceof Text) {
+          this.children[i].fill = '#999'
+          this.children[i].stroke = '#999'
+        }
+        if (this.children[i] instanceof Path) {
+          this.children[i].stroke = '#999'
+          this.children[i].dashes = [5, 2]
+        }
+      }
+    } else {
+      for (let i = 0; i < this.children.length; i++) {
+        if (this.children[i] instanceof Text) {
+          this.children[i].fill = '#000'
+          this.children[i].stroke = '#000'
+        }
+        if (this.children[i] instanceof Path) {
+          this.children[i].stroke = '#000'
+          this.children[i].dashes = [0, 0]
+        }
+      }
+    }
+    this._selected = selected
   }
 
   setLine(joinpoint: number, shapeId: string) {

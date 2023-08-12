@@ -1,17 +1,24 @@
 import { Group } from 'two.js/src/group'
 import { Axis, CellPosition, CellVector } from '../Coordinate'
-import { Direction } from '../StateManager'
+import { Cell, Direction } from '../StateManager'
 import StateManager from '../StateManager'
 import CellRect from './CellRect'
+import CellShape from './CellShape'
+import { CoordinateRange } from '../types'
 
-export default class CellLine extends Group {
+export default class CellLine extends Group implements CellShape {
+  private _selected: boolean
+
+  private _start: CellPosition
+
+  private _end: CellPosition
+
   static MakeLine(
     start: CellPosition,
     vector: CellVector,
     state: StateManager,
     group: CellLine | CellRect
   ) {
-    console.log(start, vector)
     const { length, axis } = vector
     const len = Math.abs(length)
     let i = len
@@ -60,8 +67,49 @@ export default class CellLine extends Group {
     }
   }
 
-  constructor(start: CellPosition, vector: CellVector, state: StateManager) {
+  constructor(
+    start: CellPosition,
+    end: CellPosition,
+    vector: CellVector,
+    state: StateManager
+  ) {
     super()
     CellLine.MakeLine(start, vector, state, this)
+    this._selected = false
+    this._start = start
+    this._end = end
+  }
+
+  get start() {
+    return this._start
+  }
+
+  get end() {
+    return this._end
+  }
+
+  getShapeCenter(): { x: number; y: number } {
+    let x = (this.start.center[0] + this.end.center[0]) / 2
+    let y = (this.start.center[1] + this.end.center[1]) / 2
+    return { x, y }
+  }
+  inRange(range: CoordinateRange): boolean {
+    let { x, y } = this.getShapeCenter()
+    return (
+      x >= range.x[0] && x <= range.x[1] && y >= range.y[0] && y <= range.y[1]
+    )
+  }
+
+  get selected(): boolean {
+    return this._selected
+  }
+
+  set selected(selected: boolean) {
+    this._selected = selected
+    for (let i in this.children) {
+      if (this.children[i] instanceof Cell) {
+        this.children[i].selected = true
+      }
+    }
   }
 }

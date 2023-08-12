@@ -55,7 +55,7 @@ export default class LineTool {
     if (this.guideLine) {
       let measure = this.guideLine.measure
       if (measure) {
-        this.canvas.state.addLine(this.guideLine.start, measure)
+        this.canvas.state.addLine(this.guideLine.start, this.guideLine.end, measure)
       }
       this.concel()
     }
@@ -103,6 +103,10 @@ class GuideLine extends Path {
     this._end = end
     this.vertices[1].x = end.center[0]
     this.vertices[1].y = end.center[1]
+  }
+
+  get end() {
+    return this._end
   }
 
   get start() {

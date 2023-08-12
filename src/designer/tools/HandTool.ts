@@ -1,4 +1,3 @@
-import { cachedDataVersionTag } from 'v8'
 import Canvas, { Mode } from '../Canvas'
 import { Vector } from 'two.js/src/vector'
 import { CursorDetail } from '../Coordinate'

@@ -34,6 +34,7 @@ class Canvas {
 
   readonly el: HTMLElement
 
+  // private this filed, only accept CellShape as child
   readonly shapes: Group
 
   readonly grids: Group
