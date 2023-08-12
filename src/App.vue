@@ -285,13 +285,13 @@ const exportText = () => {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-family: 'monospace';
+  font-family: 'FiraMono' !important;
   box-shadow: 6px -3px 11px 2px #dedede;
 }
 
 .text-dialog pre {
   border-left: none;
-  font-family: 'FiraMono';
+  font-family: 'FiraMono' !important;
   margin-bottom: 10px;
   overflow: auto;
   width: auto;
@@ -300,7 +300,7 @@ const exportText = () => {
 }
 
 .text-dialog pre code {
-  font-family: 'FiraMono';
+  font-family: 'FiraMono' !important;
   line-height: 1;
   background: none;
   min-width: 260px;
