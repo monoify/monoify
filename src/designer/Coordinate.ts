@@ -51,7 +51,6 @@ export default class Coordinate {
       this.pointerBg
     )
     this.canvas.grids.add(this._pointer)
-    this.canvas.ctx.renderer.domElement.style.cursor = 'crosshair'
   }
 
   getCellPosition(row: number, col: number): CellPosition {
@@ -196,6 +195,8 @@ export default class Coordinate {
         detail: {
           type: pointer,
           button,
+          x: cx,
+          y: cy,
           clientX: x,
           clientY: y,
           ...cell,
@@ -209,12 +210,20 @@ export default class Coordinate {
       this._pointer.fill = display ? this.pointerBg : 'transparent'
     }
   }
+
+  // x,y distance
+  move = (x: number, y: number) => {
+    this.zui.translateSurface(x, y)
+    this.initGrids()
+  }
 }
 
 // FIXME use CellPosition
 export type CursorDetail = {
   type: string
   button: number
+  x: number
+  y: number
   clientX: number
   clientY: number
 } & CellPosition

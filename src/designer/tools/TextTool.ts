@@ -113,5 +113,9 @@ export default class TextTool {
       this.inputCursor?.remove()
       this.inputCursor = undefined
     }
+    if(changedMode == Mode.Text) {
+      this.canvas.ctx.renderer.domElement.style.cursor = 'text'
+    }
   }
+
 }

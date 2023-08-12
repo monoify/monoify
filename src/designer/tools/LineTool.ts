@@ -20,6 +20,7 @@ export default class LineTool {
   constructor(canvas: Canvas) {
     this.canvas = canvas
 
+    this.canvas.ctx.addEventListener('modechange', this.onModeChange)
     this.canvas.addEventListener('cursordown', this.onCursorDown)
     this.canvas.addEventListener('cursormove', this.onCursorMove)
     this.canvas.addEventListener(
@@ -71,6 +72,12 @@ export default class LineTool {
     }
     if (this.guideLine) {
       this.guideLine.end = e.detail
+    }
+  }
+
+  private onModeChange = (leave: Mode, enter: Mode) => {
+    if (enter == Mode.Line) {
+      this.canvas.ctx.renderer.domElement.style.cursor = 'crosshair'
     }
   }
 }

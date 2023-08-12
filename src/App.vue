@@ -100,8 +100,8 @@ const exportText = () => {
         </div>
         <div
           class="m-tool-item"
-          @click="setMode(Mode.Move)"
-          :class="{ active: mode == Mode.Move }">
+          @click="setMode(Mode.Hand)"
+          :class="{ active: mode == Mode.Hand }">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             height="1em"
@@ -187,7 +187,7 @@ const exportText = () => {
 .m-nav {
   width: 100%;
   height: 60px;
-  display:flex;
+  display: flex;
   border-bottom: 1px solid #dedede;
 }
 

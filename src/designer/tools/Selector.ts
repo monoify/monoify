@@ -20,6 +20,7 @@ class Selector {
     this.canvas.addEventListener('cursorup', this.onCursorUp)
     this.canvas.addEventListener('cursordown', this.onCursorDown)
     this.canvas.addEventListener('cursormove', this.onCursorMove)
+    this.canvas.ctx.addEventListener('modechange', this.onModeChange)
     this.canvas.addEventListener(
       'canvaskeydown',
       onKey({
@@ -37,8 +38,8 @@ class Selector {
     if (this.isSelecting && this.selectedRegion) {
       this.canvas.updateRegion(
         this.selectedRegion,
-        e.detail.clientX,
-        e.detail.clientY
+        e.detail.x,
+        e.detail.y
       )
     }
   }
@@ -63,7 +64,7 @@ class Selector {
 
     this.coordinate.showPointer = false
     this.isSelecting = true
-    this.createSelectedRegion(e.detail.clientX, e.detail.clientY)
+    this.createSelectedRegion(e.detail.x, e.detail.y)
   }
 
   removeSelected = () => {
@@ -90,6 +91,13 @@ class Selector {
     this.selectedRegion.dashes = [5, 2]
     this.selectedRegion.noFill()
     this.selectedRegion.linewidth = 1
+  }
+
+  private onModeChange = (leave: Mode, enter: Mode) => {
+    console.log(enter)
+    if (enter == Mode.Select) {
+      this.canvas.ctx.renderer.domElement.style.cursor = 'cell'
+    }
   }
 }
 

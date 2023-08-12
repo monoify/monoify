@@ -1,7 +1,7 @@
 import Two from 'two.js'
 import { Rectangle } from 'two.js/src/shapes/rectangle'
 import Coordinate from './Coordinate'
-import { RectTool, Selector, LineTool, TextTool } from './tools'
+import { RectTool, Selector, LineTool, TextTool, HandTool } from './tools'
 import { KeyboardDetail } from './types'
 import { Group } from 'two.js/src/group'
 import StateManager from './StateManager'
@@ -30,7 +30,7 @@ class Canvas {
 
   readonly dispatchEvent: Function
 
-  _mode: Mode = Mode.Select
+  private _mode: Mode = Mode.None
 
   readonly el: HTMLElement
 
@@ -41,6 +41,8 @@ class Canvas {
   readonly cursor: Group
 
   readonly state: StateManager
+
+  readonly hand: HandTool
 
   constructor(parent: HTMLElement) {
     this.el = parent
@@ -75,6 +77,7 @@ class Canvas {
     this.box = new RectTool(this)
     this.line = new LineTool(this)
     this.text = new TextTool(this)
+    this.hand = new HandTool(this)
 
     window.addEventListener('keydown', (e: KeyboardEvent) => {
       let event = new CustomEvent<KeyboardDetail>('canvaskeydown', {
@@ -83,14 +86,17 @@ class Canvas {
 
       el.dispatchEvent(event)
     })
+
   }
 
   get boudingClientRect() {
     return this.el.getBoundingClientRect()
   }
   set mode(mode: Mode) {
-    this.ctx.dispatchEvent('modechange', this.mode, mode)
-    this._mode = mode
+    if(this.mode != mode) {
+      this.ctx.dispatchEvent('modechange', this.mode, mode)
+      this._mode = mode
+    }
   }
 
   get mode() {
@@ -130,11 +136,12 @@ class Canvas {
 }
 
 export enum Mode {
-  Select = 0,
-  Line = 1,
-  Rect = 2,
-  Text = 3,
-  Move = 4,
+  None,
+  Select,
+  Line,
+  Rect,
+  Text,
+  Hand,
 }
 
 export interface PointerEventHandler {

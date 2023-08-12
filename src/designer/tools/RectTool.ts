@@ -22,49 +22,18 @@ export default class RectTool {
   constructor(canvas: Canvas) {
     this.canvas = canvas
     this.coordinate = canvas.coordinate
+    this.canvas.ctx.addEventListener('modechange', this.onModeChange)
     this.canvas.addEventListener('cursordown', this.onCursorDown)
     this.canvas.addEventListener('cursorup', this.onCursorUp)
     this.canvas.addEventListener('cursormove', this.onCursorMove)
   }
 
-  // makeRect(start: CellPosition): Rect {
-  //   let rect = new Rect(start, start)
-  //   rect.dashes = [5, 2]
-  //   rect.stroke = '#999'
-  //   rect.linewidth = 1
-  //   rect.noFill()
-  //   this.canvas.borders.add(rect)
-  //   return rect
-  // }
+  private onModeChange = (leave: Mode, enter: Mode) => {
+    if (enter == Mode.Rect) {
+      this.canvas.ctx.renderer.domElement.style.cursor = 'crosshair'
+    }
+  }
 
-  // static isValid(rect: Rect) {
-  //   if (!rect) {
-  //     return false
-  //   }
-  //
-  //   let { scx: bx, scy: by } = rect.bottomright
-  //   let { scx: ex, scy: ey } = rect.topleft
-  //
-  //   return bx != ex && by != ey
-  // }
-
-  // concel() {
-  //   if (this.rect) {
-  //     this.rect.remove()
-  //     this.rect = undefined
-  //     this.isDrawing = false
-  //   }
-  // }
-
-  // confirm() {
-  //   if (this.rect) {
-  //     this.rect.stroke = '#000'
-  //     this.rect.dashes = [0, 0]
-  //     this.isDrawing = false
-  //     this.rect = undefined
-  //   }
-  // }
-  //
   onCursorDown = (e: CustomEvent<CursorDetail>) => {
     if (this.canvas.mode != Mode.Rect) {
       return
