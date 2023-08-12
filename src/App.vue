@@ -22,7 +22,7 @@ const text = reactive<any>({
 onMounted(() => {
   if (editor.value) {
     canvas = new Canvas(editor.value)
-    canvas.mode == mode.value
+    canvas.mode = mode.value
   }
 })
 
