@@ -12,7 +12,7 @@ const gitInfo = {
 let editor = ref<HTMLElement | null>(null)
 let canvas: Canvas
 const show = ref<boolean>(false)
-const mode = ref<Mode>(Mode.Line)
+const mode = ref<Mode>(Mode.Text)
 const text = reactive<any>({
   content: '',
   row: 24,
@@ -22,6 +22,7 @@ const text = reactive<any>({
 onMounted(() => {
   if (editor.value) {
     canvas = new Canvas(editor.value)
+    canvas.mode == mode.value
   }
 })
 
