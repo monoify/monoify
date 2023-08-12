@@ -43,8 +43,8 @@ const exportText = () => {
     <div class="m-brand">
       <span class="m-brand-name">Monoify</span>
     </div>
+    <div class="m-menu-bar"></div>
   </header>
-  <div class="m-menu-bar"></div>
   <div class="m-workspace">
     <div class="m-toolbox">
       <div class="m-toolbox-section">
@@ -186,17 +186,21 @@ const exportText = () => {
 <style>
 .m-nav {
   width: 100%;
-  height: 40px;
+  height: 60px;
+  display:flex;
+  border-bottom: 1px solid #dedede;
 }
 
 .m-menu-bar {
   width: 100%;
   height: 20px;
-  border-bottom: 1px solid #dedede;
+  align-self: flex-end;
 }
 
 .m-brand {
   padding-left: 1.5rem;
+  display: flex;
+  align-items: center;
 }
 
 .m-workspace {
