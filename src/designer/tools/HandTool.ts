@@ -21,6 +21,7 @@ export default class HandTool {
 
   private onCursorDown = (e: CustomEvent<CursorDetail>) => {
     if (this.canvas.mode == Mode.Hand) {
+      this.canvas.ctx.renderer.domElement.style.cursor = 'grabbing'
       this.move.x = e.detail.clientX
       this.move.y = e.detail.clientY
       this.isMoving = true
@@ -41,12 +42,14 @@ export default class HandTool {
   private onCursorUp = () => {
     if (this.canvas.mode == Mode.Hand) {
       this.isMoving = false
+      this.canvas.ctx.renderer.domElement.style.cursor = 'grab'
     }
   }
 
   private onModeChange = (leave: Mode, enter: Mode) => {
     if (enter == Mode.Hand) {
-      this.canvas.ctx.renderer.domElement.style.cursor = 'hand'
+      this.canvas.ctx.renderer.domElement.style.cursor = 'grab'
+      console.log('here')
     }
   }
 }
