@@ -186,16 +186,16 @@ const exportText = () => {
       <div class="m-editor" ref="editor"></div>
     </div>
   </div>
-  <!-- <div class="release"> -->
-  <!--   <span class="git-info-title"> Monoify is under development</span> -->
-  <!--   <a :href="gitInfo.link" target="_blank" -->
-  <!--     ><span class="git-info-text" -->
-  <!--       >commit: {{ gitInfo.commit }} ({{ gitInfo.branch }})</span -->
-  <!--     ></a -->
-  <!--   > -->
-  <!--   <span class="git-info-text">last modfied: {{ gitInfo.lastMod }}</span> -->
-  <!--   <span class="git-info-text">{{ gitInfo.message }}</span> -->
-  <!-- </div> -->
+  <div class="release">
+    <span class="git-info-title"> Monoify is under development</span>
+    <a :href="gitInfo.link" target="_blank"
+      ><span class="git-info-text"
+        >commit: {{ gitInfo.commit }} ({{ gitInfo.branch }})</span
+      ></a
+    >
+    <span class="git-info-text">last modfied: {{ gitInfo.lastMod }}</span>
+    <span class="git-info-text">{{ gitInfo.message }}</span>
+  </div>
   <div class="text-dialog" v-if="show">
     <span
       @click="show = false"
