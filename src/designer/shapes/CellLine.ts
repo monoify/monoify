@@ -108,7 +108,7 @@ export default class CellLine extends Group implements CellShape {
     this._selected = selected
     for (let i in this.children) {
       if (this.children[i] instanceof Cell) {
-        this.children[i].selected = true
+        this.children[i].selected = selected
       }
     }
   }

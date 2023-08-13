@@ -64,11 +64,9 @@ export default class CellRect extends Group implements CellShape {
   }
 
   set selected(selected: boolean) {
-    if (selected) {
-      for (const i in this.children) {
-        if (this.children[i] instanceof Cell) {
-          this.children[i].selected = true
-        }
+    for (const i in this.children) {
+      if (this.children[i] instanceof Cell) {
+        this.children[i].selected = selected
       }
     }
     this._selected = selected

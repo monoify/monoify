@@ -82,7 +82,28 @@ export default class StateManager {
     this.spec = spec
   }
 
-  findShapes(range: CoordinateRange): CellShape[] {
+  findByCell(row: number, col: number): CellShape[] {
+    let shapes: CellShape[] = []
+    let cell = this.getCell(row, col)
+    if (cell) {
+      if (cell.text) {
+        shapes.push(cell)
+      } else {
+        const len = cell.cellshapes.length
+        const shapeId = len > 0 ? cell.cellshapes[len - 1] : undefined
+        if (shapeId) {
+          for (let i = 0; i < this.canvas.shapes.children.length; i++) {
+            if (this.canvas.shapes.children[i].id == shapeId) {
+              shapes.push(this.canvas.shapes.children[i])
+            }
+          }
+        }
+      }
+    }
+    return shapes
+  }
+
+  findByRange(range: CoordinateRange): CellShape[] {
     let shapes = []
     const children = this.canvas.shapes.children
     for (let i = 0; i < children.length; i++) {
@@ -179,10 +200,9 @@ export class Cell extends Group implements CellShape {
   readonly left: [number, number]
   readonly bottom: [number, number]
   readonly right: [number, number]
-
-  private text?: Text
-  private lines: { [key: string]: number } = {}
-  private cellshapes: string[] = []
+  text?: Text
+  readonly lines: { [key: string]: number } = {}
+  readonly cellshapes: string[] = []
 
   constructor(row: number, col: number, spec: CellSpec) {
     super()
@@ -219,7 +239,6 @@ export class Cell extends Group implements CellShape {
       for (let i = 0; i < this.children.length; i++) {
         if (this.children[i] instanceof Text) {
           this.children[i].fill = '#999'
-          this.children[i].stroke = '#999'
         }
         if (this.children[i] instanceof Path) {
           this.children[i].stroke = '#999'
@@ -230,7 +249,6 @@ export class Cell extends Group implements CellShape {
       for (let i = 0; i < this.children.length; i++) {
         if (this.children[i] instanceof Text) {
           this.children[i].fill = '#000'
-          this.children[i].stroke = '#000'
         }
         if (this.children[i] instanceof Path) {
           this.children[i].stroke = '#000'

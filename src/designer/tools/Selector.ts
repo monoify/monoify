@@ -8,14 +8,14 @@ import { Commands } from 'two.js/src/utils/path-commands'
 import { CoordinateRange } from '../types'
 import type CellShape from '../shapes/CellShape'
 
-class Selector {
+export default class Selector {
   private canvas: Canvas
 
   private coordinate: Coordinate
 
-  private selected?: SelectedRange
+  private range?: SelectedRange
 
-  private selectedShapes?: Shape[]
+  private selected: CellShape[] = []
 
   constructor(canvas: Canvas) {
     this.canvas = canvas
@@ -42,9 +42,10 @@ class Selector {
       return
     }
 
-    if (!this.selected) {
-      this.selected = new SelectedRange(e.detail)
-      this.canvas.cursor.add(this.selected)
+    this.clearSelected()
+    if (!this.range) {
+      this.range = new SelectedRange(e.detail)
+      this.canvas.cursor.add(this.range)
       this.coordinate.showPointer = false
     }
   }
@@ -54,8 +55,8 @@ class Selector {
       return
     }
 
-    if (this.selected) {
-      this.selected.end = e.detail
+    if (this.range) {
+      this.range.end = e.detail
     }
   }
 
@@ -64,11 +65,27 @@ class Selector {
       return
     }
 
-    if (this.selected) {
-      this.selected.end = e.detail
-      this.canvas.state.findShapes(this.selected.range).forEach((cell:CellShape)=> {
-        cell.selected = true
-      })
+    if (this.range) {
+      this.range.end = e.detail
+      let { row: sr, col: sc } = this.range.start
+      let { row: er, col: ec } = this.range.end
+
+      let selected
+
+      if (sr == er && sc == ec) {
+        //single select
+        selected = this.canvas.state.findByCell(er, ec)
+      } else {
+        // range select
+        selected = this.canvas.state.findByRange(this.range.range)
+      }
+
+      if (selected.length > 0) {
+        this.selected = selected
+        this.selected.forEach((cell: CellShape) => {
+          cell.selected = true
+        })
+      } 
     }
 
     this.coordinate.showPointer = true
@@ -78,17 +95,29 @@ class Selector {
   removeSelected = () => {
     // FIXME cellmgr remove
 
-    this.selected?.remove()
+    this.range?.remove()
   }
 
   private clearRange() {
-    this.selected?.remove()
-    this.selected = undefined
+    this.range?.remove()
+    this.range = undefined
+  }
+
+  private clearSelected() {
+    this.canvas.shapes.children.forEach((shape:CellShape)=> {
+      shape.selected = false
+    })
+    this.selected = []
   }
 
   private onModeChange = (leave: Mode, enter: Mode) => {
     if (enter == Mode.Select) {
       this.canvas.ctx.renderer.domElement.style.cursor = 'cell'
+    }
+
+    if (leave == Mode.Select) {
+      this.clearRange()
+      this.clearSelected()
     }
   }
 }
@@ -149,4 +178,3 @@ class SelectedRange extends Path {
     }
   }
 }
-export default Selector

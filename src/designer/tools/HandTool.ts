@@ -48,7 +48,6 @@ export default class HandTool {
   private onModeChange = (leave: Mode, enter: Mode) => {
     if (enter == Mode.Hand) {
       this.canvas.ctx.renderer.domElement.style.cursor = 'grab'
-      console.log('here')
     }
   }
 }
