@@ -103,6 +103,12 @@ export default class StateManager {
     return shapes
   }
 
+  remove(shape: CellShape) {
+    for (const i in this.cells) {
+      this.cells[i].delete(shape)
+    }
+  }
+
   findByRange(range: CoordinateRange): CellShape[] {
     let shapes = []
     const children = this.canvas.shapes.children
@@ -232,6 +238,20 @@ export class Cell extends Group implements CellShape {
 
   get selected(): boolean {
     return this._selected
+  }
+
+  delete(shape: CellShape) {
+    if (shape == this) {
+      this.text?.remove()
+      this.text = undefined
+    } else {
+      let i = this.cellshapes.findIndex((id) => id == shape.id)
+      if (i >= 0) {
+        this.cellshapes.splice(i, 1)
+      }
+      delete this.lines[shape.id]
+    }
+    this.renderShapes()
   }
 
   set selected(selected: boolean) {

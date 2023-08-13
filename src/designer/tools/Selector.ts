@@ -24,10 +24,11 @@ export default class Selector {
     this.canvas.addEventListener('cursordown', this.onCursorDown)
     this.canvas.addEventListener('cursormove', this.onCursorMove)
     this.canvas.ctx.addEventListener('modechange', this.onModeChange)
+
     this.canvas.addEventListener(
       'canvaskeydown',
       onKey({
-        Backsapce: this.removeSelected,
+        Backspace: this.removeSelected,
         Delete: this.removeSelected,
       })
     )
@@ -93,9 +94,10 @@ export default class Selector {
   }
 
   removeSelected = () => {
-    // FIXME cellmgr remove
-
-    this.range?.remove()
+    this.selected.forEach((shape:CellShape)=> {
+      this.canvas.state.remove(shape)
+    })
+    this.clearRange()
   }
 
   private clearRange() {
