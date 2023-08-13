@@ -6,6 +6,7 @@ import { KeyboardDetail } from './types'
 import { Group } from 'two.js/src/group'
 import StateManager from './StateManager'
 import CellSpec from './CellSpec'
+import SymbolTool from './tools/SymbolTool'
 
 class Canvas {
   readonly ctx: Two
@@ -45,6 +46,8 @@ class Canvas {
 
   readonly hand: HandTool
 
+  readonly symbols: SymbolTool
+
   constructor(parent: HTMLElement) {
     this.el = parent
 
@@ -79,6 +82,7 @@ class Canvas {
     this.line = new LineTool(this)
     this.text = new TextTool(this)
     this.hand = new HandTool(this)
+    this.symbols = new SymbolTool(this)
 
     window.addEventListener('keydown', (e: KeyboardEvent) => {
       let event = new CustomEvent<KeyboardDetail>('canvaskeydown', {
@@ -87,14 +91,13 @@ class Canvas {
 
       el.dispatchEvent(event)
     })
-
   }
 
   get boudingClientRect() {
     return this.el.getBoundingClientRect()
   }
   set mode(mode: Mode) {
-    if(this.mode != mode) {
+    if (this.mode != mode) {
       this.ctx.dispatchEvent('modechange', this.mode, mode)
       this._mode = mode
     }
@@ -143,6 +146,7 @@ export enum Mode {
   Rect,
   Text,
   Hand,
+  Symbol,
 }
 
 export interface PointerEventHandler {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { nextTick, onMounted, reactive, ref } from 'vue'
 import Canvas, { Mode } from './designer/Canvas'
 const gitInfo = {
   commit: __GIT_COMMIT_HASH__,
@@ -11,6 +11,7 @@ const gitInfo = {
 
 let editor = ref<HTMLElement | null>(null)
 let canvas: Canvas
+let showSymbolMenu = ref<boolean>(false)
 const show = ref<boolean>(false)
 const mode = ref<Mode>(Mode.Text)
 const text = reactive<any>({
@@ -19,16 +20,27 @@ const text = reactive<any>({
   col: 80,
 })
 
+let symbols = ref<any>({})
+let cursymbol = ref<string | undefined>()
+
+const setSymbol = (symbol: string) => {
+  canvas.symbols.symbol = symbol
+  cursymbol.value = symbol
+  showSymbolMenu.value = false
+}
+
 onMounted(() => {
   if (editor.value) {
     canvas = new Canvas(editor.value)
     canvas.mode = mode.value
+    symbols.value = canvas.symbols.getSymbols()
   }
 })
 
 const setMode = (_mode: Mode) => {
   mode.value = _mode
   canvas.mode = _mode
+  showSymbolMenu.value = _mode == Mode.Symbol
 }
 
 const exportText = () => {
@@ -89,14 +101,32 @@ const exportText = () => {
           </svg>
         </div>
 
-        <div class="m-tool-item">
+        <div
+          class="m-tool-item"
+          @click="setMode(Mode.Symbol)"
+          :class="{ active: mode == Mode.Symbol }">
+          <div class="m-symbol-menu" v-show="showSymbolMenu">
+            <div class="m-symbol-group" v-for="(_, group) in symbols">
+              <div class="m-symbol-group-name">
+                {{ group }}
+              </div>
+              <div class="m-symbol-item">
+                <span
+                  :class="{ active: cursymbol == symbol }"
+                  v-for="symbol in symbols[group]"
+                  @click.stop="setSymbol(symbol)"
+                  >{{ symbol }}</span
+                >
+              </div>
+            </div>
+          </div>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             height="1em"
-            viewBox="0 0 448 512">
+            viewBox="0 0 512 512">
             <!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
             <path
-              d="M181.3 32.4c17.4 2.9 29.2 19.4 26.3 36.8L197.8 128h95.1l11.5-69.3c2.9-17.4 19.4-29.2 36.8-26.3s29.2 19.4 26.3 36.8L357.8 128H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H347.1L325.8 320H384c17.7 0 32 14.3 32 32s-14.3 32-32 32H315.1l-11.5 69.3c-2.9 17.4-19.4 29.2-36.8 26.3s-29.2-19.4-26.3-36.8l9.8-58.7H155.1l-11.5 69.3c-2.9 17.4-19.4 29.2-36.8 26.3s-29.2-19.4-26.3-36.8L90.2 384H32c-17.7 0-32-14.3-32-32s14.3-32 32-32h68.9l21.3-128H64c-17.7 0-32-14.3-32-32s14.3-32 32-32h68.9l11.5-69.3c2.9-17.4 19.4-29.2 36.8-26.3zM187.1 192L165.8 320h95.1l21.3-128H187.1z" />
+              d="M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 322.9c-10.4 10.4-18 23.3-22.2 37.4L1 480.7c-2.5 8.4-.2 17.5 6.1 23.7s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L387.7 253.7 410.3 231zM160 399.4l-9.1 22.7c-4 3.1-8.5 5.4-13.3 6.9L59.4 452l23-78.1c1.4-4.9 3.8-9.4 6.9-13.3l22.7-9.1v32c0 8.8 7.2 16 16 16h32zM362.7 18.7L348.3 33.2 325.7 55.8 314.3 67.1l33.9 33.9 62.1 62.1 33.9 33.9 11.3-11.3 22.6-22.6 14.5-14.5c25-25 25-65.5 0-90.5L453.3 18.7c-25-25-65.5-25-90.5 0zm-47.4 168l-144 144c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l144-144c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z" />
           </svg>
         </div>
         <div
@@ -156,16 +186,16 @@ const exportText = () => {
       <div class="m-editor" ref="editor"></div>
     </div>
   </div>
-  <div class="release">
-    <span class="git-info-title"> Monoify is under development</span>
-    <a :href="gitInfo.link" target="_blank"
-      ><span class="git-info-text"
-        >commit: {{ gitInfo.commit }} ({{ gitInfo.branch }})</span
-      ></a
-    >
-    <span class="git-info-text">last modfied: {{ gitInfo.lastMod }}</span>
-    <span class="git-info-text">{{ gitInfo.message }}</span>
-  </div>
+  <!-- <div class="release"> -->
+  <!--   <span class="git-info-title"> Monoify is under development</span> -->
+  <!--   <a :href="gitInfo.link" target="_blank" -->
+  <!--     ><span class="git-info-text" -->
+  <!--       >commit: {{ gitInfo.commit }} ({{ gitInfo.branch }})</span -->
+  <!--     ></a -->
+  <!--   > -->
+  <!--   <span class="git-info-text">last modfied: {{ gitInfo.lastMod }}</span> -->
+  <!--   <span class="git-info-text">{{ gitInfo.message }}</span> -->
+  <!-- </div> -->
   <div class="text-dialog" v-if="show">
     <span
       @click="show = false"
@@ -252,7 +282,7 @@ const exportText = () => {
   background-color: #e9e9e9;
 }
 
-.m-tool-item.active {
+.active {
   background-color: #dae9f5;
 }
 
@@ -302,9 +332,51 @@ const exportText = () => {
 
 .text-dialog pre code {
   font-family: 'FiraMono' !important;
-  line-height: 1;
+  line-height: 1.2;
   background: none;
   min-width: 260px;
   min-height: 120px;
+}
+
+.m-symbol-menu {
+  position: absolute;
+  left: 80px;
+  background: #fff;
+  border: 1px solid #dedede;
+  display: flex;
+  width: 220px;
+  font-family: FiraMono;
+  flex-direction: column;
+  font-size: 1.25rem;
+}
+.m-symbol-group {
+  /* margin-bottom: 10px; */
+  padding-bottom: 10px;
+  border-bottom: 1px solid #dedede;
+}
+
+.m-symbol-group-name {
+  text-align: left;
+  margin-bottom: 5px;
+  border-bottom: 1px solid #dedede;
+  padding: 8px;
+  background-color: #f6f6f6;
+}
+
+.m-symbol-item {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.m-symbol-item span {
+  width: 3rem;
+  height: 3rem;
+  font-size: 1rem;
+  line-height: 3rem;
+  cursor: hover;
+}
+
+.m-symbol-item span:hover {
+  background-color: #dedede;
 }
 </style>
