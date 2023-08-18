@@ -39,6 +39,7 @@ export default class SymbolTool {
     }
 
     this.isDrawing = true
+    this.updated = undefined
   }
 
   onCursorMove = (e: CustomEvent<CursorDetail>) => {
@@ -55,6 +56,13 @@ export default class SymbolTool {
   onCursorUp = (e: CustomEvent<CursorDetail>) => {
     if (this.canvas.mode != Mode.Symbol) {
       return
+    }
+
+    const { row, col } = e.detail
+    if(this.symbol) {
+      if(!this.updated || this.updated?.col != col || this.updated?.row != row) {
+        this.canvas.state.setText(e.detail, this.symbol)
+      }
     }
 
     this.isDrawing = false
